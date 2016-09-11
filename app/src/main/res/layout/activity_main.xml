@@ -10,27 +10,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="hanbat.encho.com.clipboardmake.MainActivity">
 
-    <LinearLayout
+
+    <ImageView
+        android:id="@+id/delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/into_clipboard"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-
-        <Button
-            android:id="@+id/press"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:text="PRESS"
-            android:textSize="12sp"
-            style="@style/Widget.Design.FloatingActionButton"/>
-
-    </LinearLayout>
-
+        android:src="@android:drawable/btn_radio"/>
     <TextView
         android:id="@+id/display_text"
         android:layout_width="wrap_content"

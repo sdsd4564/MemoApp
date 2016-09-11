@@ -2,6 +2,7 @@ package hanbat.encho.com.clipboardmake;
 
 import android.app.Service;
 import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.database.Cursor;
@@ -38,8 +39,13 @@ public class MemoService extends Service {
             @Override
             public void onPrimaryClipChanged() {
                 data = manager.getPrimaryClip();
-                Log.d(TAG, data.getItemAt(0).getText().toString());
-                mOpenner.insertColumn(data.getItemAt(0).getText().toString());
+                Log.d(TAG, manager.getPrimaryClipDescription().getMimeType(0));
+                if (!manager.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
+                    Toast.makeText(Application.getMyContext(), "텍스트가 아니야 !", Toast.LENGTH_SHORT).show();
+                } else {
+                    mOpenner.insertColumn(data.getItemAt(0).coerceToText(Application.getMyContext()).toString());
+                    Log.d(TAG, data.getItemAt(0).toString());
+                }
                 Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT).show();
             }
         });

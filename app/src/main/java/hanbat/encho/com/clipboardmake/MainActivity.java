@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,10 +33,11 @@ public class MainActivity extends AppCompatActivity {
     private ClipboardManager manager = null;
     private ClipData clipData = null;
     private ClipData.Item item = null;
+    private ImageView deleteBtn = null;
 
     private TextView display = null;
-    private EditText input = null;
-    private Button btn;
+//    private EditText input = null;
+//    private Button btn;
     private RecyclerView mRecyclerView = null;
 
     private MyAdapter adapter = null;
@@ -51,8 +53,9 @@ public class MainActivity extends AppCompatActivity {
         startService(intent);
 
         display = (TextView) findViewById(R.id.display_text); // 표시해줄 텍스트뷰
-        input = (EditText) findViewById(R.id.into_clipboard);
-        btn = (Button) findViewById(R.id.press);
+        deleteBtn = (ImageView) findViewById(R.id.delete);
+//        input = (EditText) findViewById(R.id.into_clipboard);
+//        btn = (Button) findViewById(R.id.press);
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
 
         mOpenner = DbOpenner.getInstance(this);
@@ -62,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
         clipData = manager.getPrimaryClip();
 
         list = new ArrayList<>();
-        doWhileCursorToArray();
+        doWhileCursorToArray(); // DB 데이터를 어레이리스트로 옮김
+
         adapter = new MyAdapter(MainActivity.this, list);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(adapter);
@@ -73,36 +77,46 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Toast.makeText(getApplicationContext(), "클립보드 내용 없음", Toast.LENGTH_SHORT).show();
         }
+
+//        /* -------------------------- 클립내용 추가하기 ---------------------------- */
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                clipData = ClipData.newPlainText(input.getText(), input.getText());
+//                manager.setPrimaryClip(clipData);
+//
+//                list.clear();
+//                doWhileCursorToArray();
+//
+//                adapter.notifyDataSetChanged();
+//                mCursor.close();
+//
+//                input.setText("");
+//            }
+//        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (adapter.getItemCount() == 0) {
+            display.setText("클립보드 내용 없음");
+        }
+
         /* ------------------ 클립보드 내용 변경시 ------------------- */
         manager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
             @Override
             public void onPrimaryClipChanged() {
-                mOpenner.insertColumn(clipData.getItemAt(0).getText().toString());
+//                mOpenner.insertColumn(clipData.getItemAt(0).getText().toString());
                 list = new ArrayList<Entity>();
                 doWhileCursorToArray();
                 display.setText(clipData.getItemAt(0).getText() + " - " + list.size());
+                adapter = new MyAdapter(MainActivity.this, list);
                 adapter.notifyDataSetChanged();
             }
         });
-        /* -------------------------- 클립내용 추가하기 ---------------------------- */
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                clipData = ClipData.newPlainText(input.getText(), input.getText());
-                manager.setPrimaryClip(clipData);
-
-                list.clear();
-                doWhileCursorToArray();
-
-                adapter.notifyDataSetChanged();
-                mCursor.close();
-
-                input.setText("");
-            }
-        });
-
+        /* -------------------------------------------------------- */
     }
-
 
     @Override
     protected void onPause() {
@@ -111,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             PendingIntent mPendingIntent = PendingIntent.getActivity(Application.getMyContext(),
-                    0, new Intent(this, MainActivity.class), PendingIntent.FLAG_NO_CREATE);
+                    0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
             Notification.Builder mBuilder = new Notification.Builder(this)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.app_name))

@@ -34,10 +34,6 @@ public class DbOpenner {
             super(context, name, factory, version);
         }
 
-        public DB_Helper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version, DatabaseErrorHandler errorHandler) {
-            super(context, name, factory, version, errorHandler);
-        }
-
         /* --------- 최초 DB 만들때 한 번만 호출됨 ---------- */
         @Override
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
