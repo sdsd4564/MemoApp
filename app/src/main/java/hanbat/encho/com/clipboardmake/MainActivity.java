@@ -103,13 +103,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    /*@Override
-    protected void onDestroy() {
-        mOpenner.close();
-        super.onDestroy();
-    }
-*/ // todo : 데이터베이스 close 꺼놓음
-
 
     @Override
     protected void onPause() {
