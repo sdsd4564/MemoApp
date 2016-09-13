@@ -1,5 +1,6 @@
 package hanbat.encho.com.clipboardmake;
 
+import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -36,26 +37,30 @@ public class MainActivity extends AppCompatActivity {
     private ImageView deleteBtn = null;
 
     private TextView display = null;
-//    private EditText input = null;
-//    private Button btn;
     private RecyclerView mRecyclerView = null;
 
     private MyAdapter adapter = null;
     private ArrayList<Entity> list = null;
+
+    private Intent intent = null;
+    private boolean isServiceRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Intent intent = new Intent("hanbat.encho.com.clipboardmake.service");
+        intent = new Intent("hanbat.encho.com.clipboardmake.service");
         intent.setPackage("hanbat.encho.com.clipboardmake");
-        startService(intent);
+
+        if (isServiceRunning) {
+            stopService(intent); // 실행중인경우 STOP !
+            isServiceRunning = false;
+        }
+
 
         display = (TextView) findViewById(R.id.display_text); // 표시해줄 텍스트뷰
-        deleteBtn = (ImageView) findViewById(R.id.delete);
-//        input = (EditText) findViewById(R.id.into_clipboard);
-//        btn = (Button) findViewById(R.id.press);
+        deleteBtn = (ImageView) findViewById(R.id.delete); // 딜리트 버튼 가장 최신꺼
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
 
         mOpenner = DbOpenner.getInstance(this);
@@ -73,27 +78,18 @@ public class MainActivity extends AppCompatActivity {
 
         if (clipData != null) { /* 가장 최신의 클립보드 내용을 맨 윗줄에 표시해줌 */
             item = clipData.getItemAt(0);
-            display.setText(item.getText());
+            display.setText(new StringBuilder().append("최근 클립보드 내용 : ").append(item.getText()).toString());
         } else {
             Toast.makeText(getApplicationContext(), "클립보드 내용 없음", Toast.LENGTH_SHORT).show();
+            display.setText("최근 클립보드 내용 : 없음");
         }
 
-//        /* -------------------------- 클립내용 추가하기 ---------------------------- */
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                clipData = ClipData.newPlainText(input.getText(), input.getText());
-//                manager.setPrimaryClip(clipData);
-//
-//                list.clear();
-//                doWhileCursorToArray();
-//
-//                adapter.notifyDataSetChanged();
-//                mCursor.close();
-//
-//                input.setText("");
-//            }
-//        });
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                mOpenner.deleteColumn()
+            }
+        });
     }
 
     @Override
@@ -103,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
             display.setText("클립보드 내용 없음");
         }
 
-        /* ------------------ 클립보드 내용 변경시 ------------------- */
+        /* ----- 클립보드 내용 변경시 ----- */
         manager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
             @Override
             public void onPrimaryClipChanged() {
@@ -112,10 +108,11 @@ public class MainActivity extends AppCompatActivity {
                 doWhileCursorToArray();
                 display.setText(clipData.getItemAt(0).getText() + " - " + list.size());
                 adapter = new MyAdapter(MainActivity.this, list);
-                adapter.notifyDataSetChanged();
             }
         });
         /* -------------------------------------------------------- */
+
+        adapter.notifyDataSetChanged();
     }
 
     @Override
@@ -128,17 +125,22 @@ public class MainActivity extends AppCompatActivity {
                     0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
             Notification.Builder mBuilder = new Notification.Builder(this)
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(getString(R.string.app_name))
-                    .setContentText("클립보드 내용을 기록중입니다")
+                    .setContentTitle("클립보드 내용을 기록중입니다")
+                    .setContentText("글자를 복사해보세요!")
                     .setAutoCancel(false);
 
             mBuilder.setContentIntent(mPendingIntent);
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             manager.notify(0, mBuilder.build());
+
+        }
+        if (!isServiceRunning) {
+            startService(intent); // 클립보드 메모 서비스
+            isServiceRunning = true;
         }
     }
 
-    /* ----------------- 데이터베이스 내용을 어레이로 옮김 ------------------ */
+    /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
     private void doWhileCursorToArray() {
         mCursor = null;
         mCursor = mOpenner.getAllColumn();
