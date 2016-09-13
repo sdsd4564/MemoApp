@@ -20,7 +20,8 @@ public class DbOpenner {
 
     private static DbOpenner f = null;
 
-    public static DbOpenner getInstance(Context context){
+    public static DbOpenner getInstance(Context context) {
+        /* ----- Use Singleton ----- */
         if (f == null) {
             f = new DbOpenner(context);
         }
