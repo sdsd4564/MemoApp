@@ -9,6 +9,7 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
+import android.os.Environment;
 import android.support.v4.app.AppLaunchChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +24,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -58,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
             isServiceRunning = false;
         }
 
-
         display = (TextView) findViewById(R.id.display_text); // 표시해줄 텍스트뷰
         deleteBtn = (ImageView) findViewById(R.id.delete); // 딜리트 버튼 가장 최신꺼
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
@@ -87,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                mOpenner.deleteColumn()
+                sqliteExport();
             }
         });
     }
@@ -104,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPrimaryClipChanged() {
 //                mOpenner.insertColumn(clipData.getItemAt(0).getText().toString());
+                clipData = manager.getPrimaryClip();
                 list = new ArrayList<Entity>();
                 doWhileCursorToArray();
                 display.setText(clipData.getItemAt(0).getText() + " - " + list.size());
@@ -151,5 +156,30 @@ public class MainActivity extends AppCompatActivity {
             list.add(mEntity);
         }
         mCursor.close();
+    }
+    public void sqliteExport(){
+        try {
+            File sd = Environment.getExternalStorageDirectory();
+            File data = Environment.getDataDirectory();
+
+            if (sd.canWrite()) {
+                String currentDBPath = "//data//hanbat.encho.com/databases//address";
+                String backupDBPath = "addressbook.db";
+                File currentDB = new File(data, currentDBPath);
+                File backupDB = new File(sd, backupDBPath);
+
+                if (currentDB.exists()) {
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                }
+                if(backupDB.exists()){
+                    Toast.makeText(MainActivity.this, "DB Export Complete!!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        } catch (Exception e) {
+        }
     }
 }

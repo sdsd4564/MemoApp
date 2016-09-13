@@ -7,12 +7,13 @@ import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 /**
  * Created by USER on 2016-09-10.
  */
 public class DbOpenner {
-    private static final String DATABASE_NAME = "addressbook.db";
+    private static final String DATABASE_NAME = "database.db";
     private static final int DATABASE_VERSION = 1;
     public static SQLiteDatabase mDB;
     private DB_Helper mHelper;
@@ -73,6 +74,7 @@ public class DbOpenner {
         return mDB.update(MemoDB._TABLENAME, values, "_id="+id, null) > 0;
     }
     public boolean deleteColumn(long id){
+        Log.d("DbOpenner.java", id+"");
         return mDB.delete(MemoDB._TABLENAME, "_id="+id, null) > 0;
     }
     public Cursor getAllColumn() {

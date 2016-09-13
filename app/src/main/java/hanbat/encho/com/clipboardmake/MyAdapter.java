@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -19,24 +20,23 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     private Context mContext;
     private ArrayList<Entity> list = null;
+    private DbOpenner mOpenner;
+    private boolean result;
 
     public MyAdapter(Context mContext, ArrayList list) {
         this.mContext = mContext;
         this.list = list;
+        mOpenner = DbOpenner.getInstance(mContext);
+        mOpenner.open();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mTextView;
 
         public ViewHolder(View itemView) {
             super(itemView);
             mTextView = (TextView) itemView.findViewById(R.id.item_content_text);
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    return false;
-                }
-            });
+
         }
     }
 
@@ -47,8 +47,25 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.mTextView.setText(list.get(position).memo + " - " + position);
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                result = mOpenner.deleteColumn(list.get(position)._id);
+
+                if (result) {
+                    Log.d(TAG, position+"");
+                    list.remove(position);
+                    notifyItemRemoved(position);
+                    notifyItemRangeChanged(position, getItemCount());
+                } else {
+                    Toast.makeText(mContext, "Check your list index", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
     }
 
     @Override

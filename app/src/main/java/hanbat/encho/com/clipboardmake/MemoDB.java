@@ -9,7 +9,6 @@ public class MemoDB implements BaseColumns {
 
     public static final String MEMO = "memo";
     public static final String _TABLENAME = "address";
-    public static final String _CREATE = "create table " + _TABLENAME + "("
-            + _ID + " integer primary key autoincrement, "
-            + MEMO + " text not null );";
+    public static final String _CREATE =
+            "CREATE TABLE " + _TABLENAME + "(" + _ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " + MEMO + " TEXT NOT NULL );";
 }
