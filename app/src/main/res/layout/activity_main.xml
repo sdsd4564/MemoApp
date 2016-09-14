@@ -4,18 +4,20 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="hanbat.encho.com.clipboardmake.MainActivity">
 
+    <android.support.v7.widget.Toolbar
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/actionBarSize">
+
+    </android.support.v7.widget.Toolbar>
 
     <ImageView
         android:id="@+id/delete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/btn_radio"/>
+        android:src="@android:drawable/btn_radio" />
+
     <TextView
         android:id="@+id/display_text"
         android:layout_width="wrap_content"

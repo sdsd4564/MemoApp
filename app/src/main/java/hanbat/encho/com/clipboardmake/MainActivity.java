@@ -55,8 +55,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        /* ----- 서비스 선언 -----*/
         intent = new Intent("hanbat.encho.com.clipboardmake.service");
         intent.setPackage("hanbat.encho.com.clipboardmake");
+
+        /* ----- DB 오픈 ----- */
+        mOpenner = DbOpenner.getInstance(this);
+        mOpenner.open();
 
         if (isServiceRunning) {
             stopService(intent); // 실행중인경우 STOP !
@@ -67,8 +72,6 @@ public class MainActivity extends AppCompatActivity {
         deleteBtn = (ImageView) findViewById(R.id.delete); // 딜리트 버튼 가장 최신꺼
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
 
-        mOpenner = DbOpenner.getInstance(this);
-        mOpenner.open();
 
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         clipData = manager.getPrimaryClip();
@@ -82,32 +85,24 @@ public class MainActivity extends AppCompatActivity {
 
         if (clipData != null) { /* 가장 최신의 클립보드 내용을 맨 윗줄에 표시해줌 */
             item = clipData.getItemAt(0);
-            display.setText(new StringBuilder().append("최근 클립보드 내용 : ").append(item.getText()).toString());
+            display.setText(new StringBuilder().append(getString(R.string.recent_clipboard)).append(item.getText()).toString());
         } else {
-            Toast.makeText(getApplicationContext(), "클립보드 내용 없음", Toast.LENGTH_SHORT).show();
-            display.setText("최근 클립보드 내용 : 없음");
+            Toast.makeText(getApplicationContext(), getString(R.string.has_no_clipboard), Toast.LENGTH_SHORT).show();
+            display.setText(new StringBuilder().append(getString(R.string.recent_clipboard)).append("없음").toString());
         }
-
-        deleteBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                sqliteExport();
-            }
-        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         if (adapter.getItemCount() == 0) {
-            display.setText("클립보드 내용 없음");
+            display.setText(getString(R.string.has_no_clipboard));
         }
 
         /* ----- 클립보드 내용 변경시 ----- */
         manager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
             @Override
             public void onPrimaryClipChanged() {
-//                mOpenner.insertColumn(clipData.getItemAt(0).getText().toString());
                 clipData = manager.getPrimaryClip();
                 list = new ArrayList<Entity>();
                 doWhileCursorToArray();
@@ -115,7 +110,6 @@ public class MainActivity extends AppCompatActivity {
                 adapter = new MyAdapter(MainActivity.this, list);
             }
         });
-        /* -------------------------------------------------------- */
 
         adapter.notifyDataSetChanged();
     }
@@ -123,15 +117,15 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        Toast.makeText(Application.getMyContext(), "메모는 계속 기록됩니다. 정말로요!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(Application.getMyContext(), getString(R.string.message_when_pause), Toast.LENGTH_SHORT).show();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             PendingIntent mPendingIntent = PendingIntent.getActivity(Application.getMyContext(),
                     0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
             Notification.Builder mBuilder = new Notification.Builder(this)
                     .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle("클립보드 내용을 기록중입니다")
-                    .setContentText("글자를 복사해보세요!")
+                    .setContentTitle(getString(R.string.notification_head))
+                    .setContentText(getString(R.string.notification_body))
                     .setAutoCancel(false);
 
             mBuilder.setContentIntent(mPendingIntent);
@@ -156,30 +150,5 @@ public class MainActivity extends AppCompatActivity {
             list.add(mEntity);
         }
         mCursor.close();
-    }
-    public void sqliteExport(){
-        try {
-            File sd = Environment.getExternalStorageDirectory();
-            File data = Environment.getDataDirectory();
-
-            if (sd.canWrite()) {
-                String currentDBPath = "//data//hanbat.encho.com/databases//address";
-                String backupDBPath = "addressbook.db";
-                File currentDB = new File(data, currentDBPath);
-                File backupDB = new File(sd, backupDBPath);
-
-                if (currentDB.exists()) {
-                    FileChannel src = new FileInputStream(currentDB).getChannel();
-                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
-                    dst.transferFrom(src, 0, src.size());
-                    src.close();
-                    dst.close();
-                }
-                if(backupDB.exists()){
-                    Toast.makeText(MainActivity.this, "DB Export Complete!!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        } catch (Exception e) {
-        }
     }
 }
