@@ -16,7 +16,10 @@ import android.os.Bundle;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -30,7 +33,7 @@ import java.io.FileOutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private static final String TAG = "메인 액티비티";
     private DbOpenner mOpenner;
@@ -39,13 +42,13 @@ public class MainActivity extends AppCompatActivity {
     private ClipboardManager manager = null;
     private ClipData clipData = null;
     private ClipData.Item item = null;
-    private ImageView deleteBtn = null;
 
     private TextView display = null;
     private RecyclerView mRecyclerView = null;
 
     private MyAdapter adapter = null;
     private ArrayList<Entity> list = null;
+    private ArrayList<Entity> filtered = null;
 
     private Intent intent = null;
     private boolean isServiceRunning;
@@ -69,17 +72,24 @@ public class MainActivity extends AppCompatActivity {
         }
 
         display = (TextView) findViewById(R.id.display_text); // 표시해줄 텍스트뷰
-        deleteBtn = (ImageView) findViewById(R.id.delete); // 딜리트 버튼 가장 최신꺼
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
+        Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(mToolbar); // TODO: CHECK THIS LINE IF ERROR OR WEIRD
+        mToolbar.inflateMenu(R.menu.search);
 
+        SearchView mSearchView = (SearchView) mToolbar.getMenu().findItem(R.id.menu_search).getActionView();
+        mSearchView.setOnQueryTextListener(this);
 
+        /* ----- 시스템에서 클립보드 내용 가져옴 ----- */
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         clipData = manager.getPrimaryClip();
 
         list = new ArrayList<>();
+        filtered = new ArrayList<>();
         doWhileCursorToArray(); // DB 데이터를 어레이리스트로 옮김
 
-        adapter = new MyAdapter(MainActivity.this, list);
+
+        adapter = new MyAdapter(MainActivity.this, list, filtered);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(adapter);
 
@@ -107,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 list = new ArrayList<Entity>();
                 doWhileCursorToArray();
                 display.setText(clipData.getItemAt(0).getText() + " - " + list.size());
-                adapter = new MyAdapter(MainActivity.this, list);
+                adapter = new MyAdapter(MainActivity.this, list, filtered);
             }
         });
 
@@ -149,6 +159,31 @@ public class MainActivity extends AppCompatActivity {
 
             list.add(mEntity);
         }
+        filtered.addAll(list);
         mCursor.close();
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        final ArrayList<Entity> filteredModelList = filter(list, newText);
+        adapter.setFilter(filteredModelList, newText);
+        return true;
+    }
+    private ArrayList<Entity> filter(ArrayList<Entity> models, String query) {
+        query = query.toLowerCase();
+
+        final ArrayList<Entity> filteredModelList = new ArrayList<>();
+        for (Entity model : models) {
+            final String text = model.memo.toLowerCase();
+            if (SoundSearcher.matchString(text, query)){
+                filteredModelList.add(model);
+            }
+        }
+        return filteredModelList;
     }
 }

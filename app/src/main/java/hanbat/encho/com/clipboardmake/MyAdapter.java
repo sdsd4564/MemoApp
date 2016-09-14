@@ -20,12 +20,14 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     private Context mContext;
     private ArrayList<Entity> list = null;
+    private ArrayList<Entity> filtered = null;
     private DbOpenner mOpenner;
     private boolean result;
 
-    public MyAdapter(Context mContext, ArrayList list) {
+    public MyAdapter(Context mContext, ArrayList list, ArrayList filtered) {
         this.mContext = mContext;
         this.list = list;
+        this.filtered = filtered;
         mOpenner = DbOpenner.getInstance(mContext);
         mOpenner.open();
     }
@@ -36,7 +38,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         public ViewHolder(View itemView) {
             super(itemView);
             mTextView = (TextView) itemView.findViewById(R.id.item_content_text);
-
         }
     }
 
@@ -48,7 +49,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.mTextView.setText(list.get(position).memo + " - " + position);
+        holder.mTextView.setText(new StringBuilder().append(filtered.get(position).memo).append(" - ").append(position).toString());
+
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,22 +58,28 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 result = mOpenner.deleteColumn(list.get(position)._id);
 
                 if (result) {
-                    Log.d(TAG, position+"");
-                    list.remove(position);
-                    notifyItemRemoved(position);
-                    notifyItemRangeChanged(position, getItemCount());
+                    filtered.remove(position);
+                    notifyDataSetChanged();
                 } else {
                     Toast.makeText(mContext, "Check your list index", Toast.LENGTH_SHORT).show();
                 }
-
             }
         });
     }
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return filtered.size();
     }
 
-
+    public void setFilter(ArrayList<Entity> memberModels, String text) {
+        if (memberModels.size() > 0) {
+            filtered.clear();
+            filtered.addAll(memberModels);
+        } else if (text != null && text.length() < 1) {
+            filtered.clear();
+            filtered.addAll(list);
+        }
+        notifyDataSetChanged();
+    }
 }
