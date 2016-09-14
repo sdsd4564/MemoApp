@@ -58,6 +58,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 result = mOpenner.deleteColumn(list.get(position)._id);
 
                 if (result) {
+                    list.remove(filtered.get(position));
                     filtered.remove(position);
                     notifyDataSetChanged();
                 } else {
@@ -72,14 +73,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return filtered.size();
     }
 
+    /* ----- 검색 필터 적용 ----- */
     public void setFilter(ArrayList<Entity> memberModels, String text) {
         if (memberModels.size() > 0) {
             filtered.clear();
             filtered.addAll(memberModels);
-        } else if (text != null && text.length() < 1) {
+        } else if (text == null && text.length() < 1) {
             filtered.clear();
             filtered.addAll(list);
-        }
+        } else { filtered.clear();}
         notifyDataSetChanged();
     }
 }
