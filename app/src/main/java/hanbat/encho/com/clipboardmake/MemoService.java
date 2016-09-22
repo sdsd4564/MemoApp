@@ -21,6 +21,7 @@ public class MemoService extends Service {
     private ClipData data = null;
     private static final String TAG = "메모 서비스";
     private DbOpenner mOpenner;
+    private String mPrevius = "";
     private Cursor mCursor;
     private Entity mEntity;
 
@@ -30,26 +31,23 @@ public class MemoService extends Service {
         mOpenner = DbOpenner.getInstance(Application.getMyContext());
         mOpenner.open();
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
         manager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
             @Override
             public void onPrimaryClipChanged() {
                 data = manager.getPrimaryClip();
-                Log.d(TAG, data.getDescription().getMimeType(0));
-                if (manager.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
-                    mOpenner.insertColumn(data.getItemAt(0).getText().toString());
+
+                String Contents = data.getItemAt(0).coerceToText(Application.getMyContext()).toString();
+
+                if (mPrevius.equals(Contents)) return;
+                else {
+                    mPrevius = Contents;
+                    mOpenner.insertColumn(Contents);
                     Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT).show();
-                } else if(manager.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        mOpenner.insertColumn(data.getItemAt(0).coerceToText(Application.getMyContext()).toString());
-                        Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(Application.getMyContext(), "텍스트가 아니야 !", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
 
     @Nullable
     @Override

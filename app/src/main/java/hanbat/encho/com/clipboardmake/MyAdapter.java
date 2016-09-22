@@ -18,7 +18,8 @@ import java.util.ArrayList;
 /**
  * Created by USER on 2016-09-09.
  */
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
+public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
+          {
     private static final String TAG = "마이어댑터";
 
     private Context mContext;
@@ -36,6 +37,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         mOpenner.open();
     }
 
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView mTextView;
 
@@ -51,14 +53,30 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return new ViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.mTextView.setText(new StringBuilder().append(filtered.get(position).memo).append(" - ").append(position).toString());
-        if (position % 4 == 1) {
-            holder.itemView.setBackgroundColor(Color.CYAN);
-        } else {
-            holder.itemView.setBackgroundColor(Color.GREEN);
+        holder.mTextView.setText(filtered.get(position).memo);
+
+        switch (list.get(position)._id % 4) {
+            case 0: {
+                holder.itemView.setBackgroundResource(R.drawable.memo_yellow); // Material YELLOW
+                break;
+            }
+            case 1: {
+                holder.itemView.setBackgroundResource(R.drawable.memo_pink); // PINK
+                break;
+            }
+            case 2: {
+                holder.itemView.setBackgroundResource(R.drawable.memo_purple); // PURPLE
+                break;
+            }
+            case 3: {
+                holder.itemView.setBackgroundResource(R.drawable.memo_blue); // BLUE
+                break;
+            }
         }
+
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
@@ -114,4 +132,5 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         }
         notifyDataSetChanged();
     }
+
 }
