@@ -17,6 +17,7 @@ import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -66,8 +67,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mOpenner = DbOpenner.getInstance(this);
         mOpenner.open();
 
+        /* ----- 서비스가 이미 실행중인 경우 STOP ----- */
         if (isServiceRunning) {
-            stopService(intent); // 실행중인경우 STOP !
+            stopService(intent);
             isServiceRunning = false;
         }
 
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
         adapter = new MyAdapter(MainActivity.this, list, filtered);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(adapter);
 
         if (clipData != null) { /* 가장 최신의 클립보드 내용을 맨 윗줄에 표시해줌 */
@@ -136,7 +138,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(getString(R.string.notification_head))
                     .setContentText(getString(R.string.notification_body))
-                    .setAutoCancel(false);
+                    .setAutoCancel(false)
+                    .setOngoing(true);
 
             mBuilder.setContentIntent(mPendingIntent);
             NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);

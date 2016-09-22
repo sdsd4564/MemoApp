@@ -40,7 +40,7 @@ public class MemoService extends Service {
                     Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT).show();
                 } else if(manager.getPrimaryClipDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        mOpenner.insertColumn(data.getItemAt(0).getHtmlText());
+                        mOpenner.insertColumn(data.getItemAt(0).coerceToText(Application.getMyContext()).toString());
                         Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT).show();
                     }
                 } else {

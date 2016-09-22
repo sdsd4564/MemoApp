@@ -2,6 +2,9 @@ package hanbat.encho.com.clipboardmake;
 
 import android.content.ClipData;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,6 +26,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private ArrayList<Entity> filtered = null;
     private DbOpenner mOpenner;
     private boolean result;
+    private AlertDialog mDialog = null;
 
     public MyAdapter(Context mContext, ArrayList list, ArrayList filtered) {
         this.mContext = mContext;
@@ -50,20 +54,44 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.mTextView.setText(new StringBuilder().append(filtered.get(position).memo).append(" - ").append(position).toString());
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
+        if (position % 4 == 1) {
+            holder.itemView.setBackgroundColor(Color.CYAN);
+        } else {
+            holder.itemView.setBackgroundColor(Color.GREEN);
+        }
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
-            public void onClick(View view) {
+            public boolean onLongClick(View view) {
 
-                result = mOpenner.deleteColumn(list.get(position)._id);
 
-                if (result) {
-                    list.remove(filtered.get(position));
-                    filtered.remove(position);
-                    notifyDataSetChanged();
-                } else {
-                    Toast.makeText(mContext, "Check your list index", Toast.LENGTH_SHORT).show();
-                }
+                DialogInterface.OnClickListener deleteListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        result = mOpenner.deleteColumn(list.get(position)._id);
+                        if (result) {
+                            list.remove(filtered.get(position));
+                            filtered.remove(position);
+                            notifyDataSetChanged();
+                        } else {
+                            Toast.makeText(mContext, "Check your list index", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                };
+                DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        mDialog.dismiss();
+                    }
+                };
+
+                mDialog = new AlertDialog.Builder(mContext)
+                        .setTitle("메모를 삭제하시겠습니까?") //TODO String
+                        .setPositiveButton("취소", cancelListener)
+                        .setNegativeButton("삭제", deleteListener)
+                        .create();
+                mDialog.show();
+
+                return false;
             }
         });
     }
@@ -81,7 +109,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         } else if (text == null && text.length() < 1) {
             filtered.clear();
             filtered.addAll(list);
-        } else { filtered.clear();}
+        } else {
+            filtered.clear();
+        }
         notifyDataSetChanged();
     }
 }
