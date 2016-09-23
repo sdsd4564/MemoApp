@@ -1,25 +1,26 @@
-package hanbat.encho.com.clipboardmake;
+package hanbat.encho.com.clipboardmake.Adapter;
 
-import android.content.ClipData;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import hanbat.encho.com.clipboardmake.DbOpenner;
+import hanbat.encho.com.clipboardmake.Entity;
+import hanbat.encho.com.clipboardmake.R;
+
 /**
  * Created by USER on 2016-09-09.
  */
-public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
-          {
+public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewHolder.OnItemClickListener {
     private static final String TAG = "마이어댑터";
 
     private Context mContext;
@@ -28,6 +29,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     private DbOpenner mOpenner;
     private boolean result;
     private AlertDialog mDialog = null;
+
+    private SparseBooleanArray checkedItem = new SparseBooleanArray();
+    private int checkMode;
+    private int mCheckedPosition = INVAILD_POSITION;
+
+    public static final int INVAILD_POSITION = -1;
+    public static final int MODE_SINGLE = 0;
+    public static final int MODE_MULTI = 1;
+
 
     public MyAdapter(Context mContext, ArrayList list, ArrayList filtered) {
         this.mContext = mContext;
@@ -38,25 +48,59 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
     }
 
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        public TextView mTextView;
+////////////////////////////////////////////////////////////////////////////////////////////////////
 
-        public ViewHolder(View itemView) {
-            super(itemView);
-            mTextView = (TextView) itemView.findViewById(R.id.item_content_text);
+    @Override
+    public void onItemClick(View view, int position) {
+        if (checkMode == MODE_SINGLE) {
+            if (mCheckedPosition != position) {
+                mCheckedPosition = position;
+                notifyDataSetChanged();
+            }
+        } else if (checkMode == MODE_MULTI) {
+            boolean oldChecked = checkedItem.get(position);
+            checkedItem.put(position, !oldChecked);
+            notifyDataSetChanged();
         }
     }
 
-    @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rcv_item, parent, false);
-        return new ViewHolder(view);
+    public SparseBooleanArray getCheckedItemPosition() {
+        return checkedItem;
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        ViewHolder holder = new ViewHolder(new ItemView(parent.getContext()));
+        holder.setOnItemClickListener(this);
+        return holder;
+    }
+
+    public void setMode(int mode) {
+        if (mode == MODE_SINGLE || mode == MODE_MULTI) {
+            checkMode = mode;
+        } else {
+            throw new IllegalArgumentException("invalid check mode");
+        }
+    }
+
+    public int getMode() {
+        return checkMode;
+    }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.mTextView.setText(filtered.get(position).memo);
+
+        if (checkMode == MODE_SINGLE) {
+            if (position == mCheckedPosition) {
+                holder.setChecked(true);
+            } else {
+                holder.setChecked(false);
+            }
+        } else if (checkMode == MODE_MULTI) {
+            holder.setChecked(checkedItem.get(position));
+        }
 
         switch (list.get(position)._id % 4) {
             case 0: {
@@ -132,5 +176,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder>
         }
         notifyDataSetChanged();
     }
+
 
 }

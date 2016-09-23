@@ -19,5 +19,13 @@
             android:layout_height="wrap_content"
             android:padding="12dp" />
 
+        <View
+            android:id="@+id/selected"
+            android:layout_width="match_parent"
+            android:layout_height="4dp"
+            android:layout_gravity="bottom"
+            android:background="@color/mainColor"
+            android:visibility="invisible"/>
+
     </LinearLayout>
 </android.support.v7.widget.CardView>

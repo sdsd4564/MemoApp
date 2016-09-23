@@ -1,6 +1,5 @@
 package hanbat.encho.com.clipboardmake;
 
-import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -9,30 +8,19 @@ import android.content.ClipboardManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Build;
-import android.os.Environment;
-import android.support.v4.app.AppLaunchChecker;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.app.NotificationCompat;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+
+import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
 
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
@@ -92,6 +80,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
         adapter = new MyAdapter(MainActivity.this, list, filtered);
+        adapter.setMode(MyAdapter.MODE_MULTI);
+        Log.d(TAG, "getMode : " + adapter.getMode());
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(adapter);
 
