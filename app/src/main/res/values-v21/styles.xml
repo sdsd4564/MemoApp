@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <style name="Theme.MyTheme" parent="AppTheme">
+        <item name="searchViewStyle">@style/MySearchView</item>
+    </style>
+
+    <style name="MyActionBar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="searchViewStyle">@style/MySearchView</item>
+    </style>
+
+    <style name="MySearchView" parent="Widget.AppCompat.SearchView">
+        <item name="searchIcon">@drawable/ic_search_white_24dp</item>
+        <item name="closeIcon">@drawable/ic_close_white_24dp</item>
+        <item name="searchHintIcon">@null</item>
+    </style>
+
+</resources>

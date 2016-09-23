@@ -74,7 +74,6 @@ public class DbOpenner {
         return mDB.update(MemoDB._TABLENAME, values, "_id="+id, null) > 0;
     }
     public boolean deleteColumn(long id){
-        Log.d("DbOpenner.java", id+"");
         return mDB.delete(MemoDB._TABLENAME, "_id="+id, null) > 0;
     }
     public Cursor getAllColumn() {

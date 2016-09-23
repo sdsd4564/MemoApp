@@ -13,7 +13,7 @@ import hanbat.encho.com.clipboardmake.R;
 
 public class ViewHolder extends RecyclerView.ViewHolder {
     public TextView mTextView;
-    View itemView;
+    View mView;
     public interface OnItemClickListener {
         public void onItemClick(View view, int position);
     }
@@ -24,7 +24,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
 
     public ViewHolder(View itemView) {
         super(itemView);
-        this.itemView = itemView;
+        mView = itemView;
         mTextView = (TextView) itemView.findViewById(R.id.item_content_text);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -36,8 +36,8 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         });
     }
     public void setChecked(boolean checked) {
-        if (itemView instanceof Checkable){
-            ((Checkable)itemView).setChecked(checked);
+        if (mView instanceof Checkable){
+            ((Checkable) mView).setChecked(checked);
         }
     }
 }

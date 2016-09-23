@@ -6,7 +6,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.util.SparseBooleanArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -30,7 +29,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     private boolean result;
     private AlertDialog mDialog = null;
 
-    private SparseBooleanArray checkedItem = new SparseBooleanArray();
+    public SparseBooleanArray checkedItem = new SparseBooleanArray();
     private int checkMode;
     private int mCheckedPosition = INVAILD_POSITION;
 
@@ -63,8 +62,15 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
             notifyDataSetChanged();
         }
     }
+    public int getCheckItemPosition() {
+        if (checkMode == MODE_SINGLE) {
+            return mCheckedPosition;
+        } else {
+            return INVAILD_POSITION;
+        }
+    }
 
-    public SparseBooleanArray getCheckedItemPosition() {
+    public SparseBooleanArray getCheckedItemPositions() {
         return checkedItem;
     }
 
@@ -104,24 +110,24 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 
         switch (list.get(position)._id % 4) {
             case 0: {
-                holder.itemView.setBackgroundResource(R.drawable.memo_yellow); // Material YELLOW
+                holder.mView.setBackgroundResource(R.drawable.memo_yellow); // Material YELLOW
                 break;
             }
             case 1: {
-                holder.itemView.setBackgroundResource(R.drawable.memo_pink); // PINK
+                holder.mView.setBackgroundResource(R.drawable.memo_pink); // PINK
                 break;
             }
             case 2: {
-                holder.itemView.setBackgroundResource(R.drawable.memo_purple); // PURPLE
+                holder.mView.setBackgroundResource(R.drawable.memo_purple); // PURPLE
                 break;
             }
             case 3: {
-                holder.itemView.setBackgroundResource(R.drawable.memo_blue); // BLUE
+                holder.mView.setBackgroundResource(R.drawable.memo_blue); // BLUE
                 break;
             }
         }
 
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+        holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
 

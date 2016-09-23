@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Checkable;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import hanbat.encho.com.clipboardmake.R;
 

@@ -14,7 +14,13 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
 import android.util.Log;
+import android.util.SparseBooleanArray;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -64,11 +70,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         display = (TextView) findViewById(R.id.display_text); // 표시해줄 텍스트뷰
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(mToolbar); // TODO: CHECK THIS LINE IF ERROR OR WEIRD
+        setSupportActionBar(mToolbar);
         mToolbar.inflateMenu(R.menu.search);
 
-        SearchView mSearchView = (SearchView) mToolbar.getMenu().findItem(R.id.menu_search).getActionView();
-        mSearchView.setOnQueryTextListener(this);
+//        SearchView mSearchView = (SearchView) mToolbar.getMenu().findItem(R.id.menu_search).getActionView();
+//        mSearchView.setOnQueryTextListener(this);
 
         /* ----- 시스템에서 클립보드 내용 가져옴 ----- */
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
@@ -80,8 +86,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
 
         adapter = new MyAdapter(MainActivity.this, list, filtered);
-        adapter.setMode(MyAdapter.MODE_MULTI);
-        Log.d(TAG, "getMode : " + adapter.getMode());
+        adapter.setMode(MyAdapter.MODE_SINGLE);
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(adapter);
 
@@ -92,6 +97,36 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             Toast.makeText(getApplicationContext(), getString(R.string.has_no_clipboard), Toast.LENGTH_SHORT).show();
             display.setText(new StringBuilder().append(getString(R.string.recent_clipboard)).append("없음").toString());
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        final int id = item.getItemId();
+
+        if (id == R.id.delete_all){
+                    if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
+                        item.setIcon(R.drawable.ic_done_white_24dp);
+                        adapter.setMode(MyAdapter.MODE_MULTI);
+                        adapter.checkedItem = new SparseBooleanArray();
+                    } else if (adapter.getMode() == MyAdapter.MODE_MULTI){
+                        item.setIcon(R.drawable.ic_delete_white_24dp);
+                        adapter.setMode(MyAdapter.MODE_SINGLE);
+                    }
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search, menu);
+        MenuItem menuItem = menu.findItem(R.id.menu_search);
+        SearchView mSearchView = (SearchView)menuItem.getActionView();
+        mSearchView.setQueryHint(Html.fromHtml("<font color = #000000>" + getResources().getString(R.string.hint_search) + "</font>"));
+        mSearchView.setOnQueryTextListener(this);
+
+        return true;
     }
 
     @Override
@@ -110,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 doWhileCursorToArray();
                 display.setText(clipData.getItemAt(0).getText() + " - " + list.size());
                 adapter = new MyAdapter(MainActivity.this, list, filtered);
+                adapter.notifyDataSetChanged();
             }
         });
 
@@ -141,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             isServiceRunning = true;
         }
     }
+
 
     /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
     private void doWhileCursorToArray() {

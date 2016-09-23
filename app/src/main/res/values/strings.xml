@@ -8,4 +8,5 @@
     <string name="message_when_pause">메모는 계속 기록됩니다. 정말로요!</string>
     <string name="notification_head">"클립보드 내용을 기록중입니다"</string>
     <string name="notification_body">글자를 복사해보세요!</string>
+    <string name="hint_search">검색어를 입력하세요</string>
 </resources>
