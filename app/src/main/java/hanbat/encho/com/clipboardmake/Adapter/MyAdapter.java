@@ -2,6 +2,7 @@ package hanbat.encho.com.clipboardmake.Adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,6 +15,8 @@ import java.util.ArrayList;
 
 import hanbat.encho.com.clipboardmake.DbOpenner;
 import hanbat.encho.com.clipboardmake.Entity;
+import hanbat.encho.com.clipboardmake.MainActivity;
+import hanbat.encho.com.clipboardmake.MemoContent;
 import hanbat.encho.com.clipboardmake.R;
 
 /**
@@ -43,25 +46,27 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         this.list = list;
         this.filtered = filtered;
         mOpenner = DbOpenner.getInstance(mContext);
-        mOpenner.open();
     }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onItemClick(View view, int position) {
         if (checkMode == MODE_SINGLE) {
-            if (mCheckedPosition != position) {
-                mCheckedPosition = position;
-                notifyDataSetChanged();
-            }
+            FragmentTransaction transaction = ((MainActivity) mContext).getSupportFragmentManager().beginTransaction();
+            transaction.add(MemoContent.newInstance(filtered.get(position), filtered.get(position)._id % 4), null);
+            transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_left);
+            transaction.commit();
+            mCheckedPosition = position;
+            notifyDataSetChanged();
         } else if (checkMode == MODE_MULTI) {
             boolean oldChecked = checkedItem.get(position);
             checkedItem.put(position, !oldChecked);
             notifyDataSetChanged();
         }
     }
+
+
     public int getCheckItemPosition() {
         if (checkMode == MODE_SINGLE) {
             return mCheckedPosition;
@@ -99,11 +104,11 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         holder.mTextView.setText(filtered.get(position).memo);
 
         if (checkMode == MODE_SINGLE) {
-            if (position == mCheckedPosition) {
-                holder.setChecked(true);
-            } else {
-                holder.setChecked(false);
-            }
+//            if (position == mCheckedPosition) {
+//                holder.setChecked(true);
+//            } else {
+//                holder.setChecked(false);
+//            }
         } else if (checkMode == MODE_MULTI) {
             holder.setChecked(checkedItem.get(position));
         }
@@ -130,12 +135,12 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         holder.mView.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-
-
                 DialogInterface.OnClickListener deleteListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        mOpenner.open();
                         result = mOpenner.deleteColumn(list.get(position)._id);
+                        mOpenner.close();
                         if (result) {
                             list.remove(filtered.get(position));
                             filtered.remove(position);

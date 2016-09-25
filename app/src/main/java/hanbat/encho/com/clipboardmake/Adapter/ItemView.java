@@ -14,7 +14,7 @@ import hanbat.encho.com.clipboardmake.R;
  * Created by USER on 2016-09-23.
  */
 
-public class ItemView extends CardView implements Checkable {
+public class ItemView extends LinearLayout implements Checkable {
     public ItemView(Context context) {
         super(context);
         init();
@@ -23,7 +23,8 @@ public class ItemView extends CardView implements Checkable {
     View checkView;
 
     private void init() {
-        ViewGroup.LayoutParams mParams = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        LinearLayout.LayoutParams mParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        mParams.setMargins(8, 16, 8, 8);
         setLayoutParams(mParams);
         inflate(getContext(), R.layout.rcv_item, this);
         checkView = findViewById(R.id.selected);
@@ -36,6 +37,7 @@ public class ItemView extends CardView implements Checkable {
             checkView.setVisibility(INVISIBLE);
         }
     }
+
     boolean isChecked = false;
 
     @Override

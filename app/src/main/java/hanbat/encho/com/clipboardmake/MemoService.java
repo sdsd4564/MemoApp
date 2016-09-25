@@ -29,7 +29,7 @@ public class MemoService extends Service {
     public void onCreate() {
         super.onCreate();
         mOpenner = DbOpenner.getInstance(Application.getMyContext());
-        mOpenner.open();
+
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
         manager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
@@ -41,8 +41,10 @@ public class MemoService extends Service {
 
                 if (mPrevius.equals(Contents)) return;
                 else {
+                    mOpenner.open();
                     mPrevius = Contents;
                     mOpenner.insertColumn(Contents);
+                    mOpenner.close();
                     Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -58,6 +60,5 @@ public class MemoService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mOpenner.close();
     }
 }

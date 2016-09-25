@@ -59,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         /* ----- DB 오픈 ----- */
         mOpenner = DbOpenner.getInstance(this);
-        mOpenner.open();
 
         /* ----- 서비스가 이미 실행중인 경우 STOP ----- */
         if (isServiceRunning) {
@@ -182,6 +181,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
     private void doWhileCursorToArray() {
         mCursor = null;
+        mOpenner.open();
         mCursor = mOpenner.getAllColumn();
         while (mCursor.moveToNext()) {
             mEntity = new Entity(mCursor.getInt(mCursor.getColumnIndex("_id")),
@@ -191,6 +191,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         }
         filtered.addAll(list);
         mCursor.close();
+        mOpenner.close();
     }
 
     @Override
