@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.Gravity;
 import android.widget.Toast;
 
 /**
@@ -45,7 +46,9 @@ public class MemoService extends Service {
                     mPrevius = Contents;
                     mOpenner.insertColumn(Contents);
                     mOpenner.close();
-                    Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT).show();
+                    Toast mToast = Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT);
+                    mToast.setGravity(Gravity.CENTER, 0, 0);
+                    mToast.show();
                 }
             }
         });

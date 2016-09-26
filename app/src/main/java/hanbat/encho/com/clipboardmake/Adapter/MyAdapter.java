@@ -53,6 +53,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     @Override
     public void onItemClick(View view, int position) {
         if (checkMode == MODE_SINGLE) {
+            Log.d(TAG, position+"");
             FragmentTransaction transaction = ((MainActivity) mContext).getSupportFragmentManager().beginTransaction();
             transaction.add(MemoContent.newInstance(filtered.get(position), filtered.get(position)._id % 4), null);
             transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_left);
@@ -113,7 +114,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
             holder.setChecked(checkedItem.get(position));
         }
 
-        switch (list.get(position)._id % 4) {
+        switch (filtered.get(position)._id % 4) {
             case 0: {
                 holder.mView.setBackgroundResource(R.drawable.memo_yellow); // Material YELLOW
                 break;
@@ -158,7 +159,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
                 };
 
                 mDialog = new AlertDialog.Builder(mContext)
-                        .setTitle("메모를 삭제하시겠습니까?") //TODO String
+                        .setMessage("메모를 삭제하시겠습니까?") //TODO String
                         .setPositiveButton("취소", cancelListener)
                         .setNegativeButton("삭제", deleteListener)
                         .create();
@@ -168,6 +169,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
             }
         });
     }
+
 
     @Override
     public int getItemCount() {

@@ -7,6 +7,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private ClipData clipData = null;
     private ClipData.Item item = null;
 
-    private TextView display = null;
     private RecyclerView mRecyclerView = null;
 
     private MyAdapter adapter = null;
@@ -66,9 +66,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             isServiceRunning = false;
         }
 
-        display = (TextView) findViewById(R.id.display_text); // 표시해줄 텍스트뷰
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
         mToolbar.inflateMenu(R.menu.search);
 
@@ -91,26 +91,34 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         if (clipData != null) { /* 가장 최신의 클립보드 내용을 맨 윗줄에 표시해줌 */
             item = clipData.getItemAt(0);
-            display.setText(new StringBuilder().append(getString(R.string.recent_clipboard)).append(item.getText()).toString());
         } else {
             Toast.makeText(getApplicationContext(), getString(R.string.has_no_clipboard), Toast.LENGTH_SHORT).show();
-            display.setText(new StringBuilder().append(getString(R.string.recent_clipboard)).append("없음").toString());
         }
+
+        MemoContent.setCallback(new MemoContent.DeleteCallback() {
+            @Override
+            public void onFragmentDestroy() {
+                doWhileCursorToArray();
+                adapter = new MyAdapter(MainActivity.this, list, filtered);
+                mRecyclerView.setAdapter(adapter);
+//                mRecyclerView.invalidate();
+            }
+        });
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
 
-        if (id == R.id.delete_all){
-                    if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
-                        item.setIcon(R.drawable.ic_done_white_24dp);
-                        adapter.setMode(MyAdapter.MODE_MULTI);
-                        adapter.checkedItem = new SparseBooleanArray();
-                    } else if (adapter.getMode() == MyAdapter.MODE_MULTI){
-                        item.setIcon(R.drawable.ic_delete_white_24dp);
-                        adapter.setMode(MyAdapter.MODE_SINGLE);
-                    }
+        if (id == R.id.delete_all) {
+            if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
+                item.setIcon(R.drawable.ic_done_white_24dp);
+                adapter.setMode(MyAdapter.MODE_MULTI);
+                adapter.checkedItem = new SparseBooleanArray();
+            } else if (adapter.getMode() == MyAdapter.MODE_MULTI) {
+                item.setIcon(R.drawable.ic_delete_white_24dp);
+                adapter.setMode(MyAdapter.MODE_SINGLE);
+            }
             return true;
         }
 
@@ -121,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search, menu);
         MenuItem menuItem = menu.findItem(R.id.menu_search);
-        SearchView mSearchView = (SearchView)menuItem.getActionView();
+        SearchView mSearchView = (SearchView) menuItem.getActionView();
         mSearchView.setQueryHint(Html.fromHtml("<font color = #000000>" + getResources().getString(R.string.hint_search) + "</font>"));
         mSearchView.setOnQueryTextListener(this);
 
@@ -131,24 +139,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onResume() {
         super.onResume();
-        if (adapter.getItemCount() == 0) {
-            display.setText(getString(R.string.has_no_clipboard));
-        }
-
-        /* ----- 클립보드 내용 변경시 ----- */
-        manager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
-            @Override
-            public void onPrimaryClipChanged() {
-                clipData = manager.getPrimaryClip();
-                list = new ArrayList<Entity>();
-                doWhileCursorToArray();
-                display.setText(clipData.getItemAt(0).getText() + " - " + list.size());
-                adapter = new MyAdapter(MainActivity.this, list, filtered);
-                adapter.notifyDataSetChanged();
-            }
-        });
-
-        adapter.notifyDataSetChanged();
+        /* ----- 리사이클러뷰 업데이트 ----- */
+        doWhileCursorToArray();
+        adapter = new MyAdapter(MainActivity.this, list, filtered);
+        mRecyclerView.setAdapter(adapter);
+//        mRecyclerView.invalidate();
     }
 
     @Override
@@ -181,6 +176,8 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
     private void doWhileCursorToArray() {
         mCursor = null;
+        list = new ArrayList<>();
+        filtered = new ArrayList<>();
         mOpenner.open();
         mCursor = mOpenner.getAllColumn();
         while (mCursor.moveToNext()) {
@@ -205,13 +202,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         adapter.setFilter(filteredModelList, newText);
         return true;
     }
+
     private ArrayList<Entity> filter(ArrayList<Entity> models, String query) {
         query = query.toLowerCase();
 
         final ArrayList<Entity> filteredModelList = new ArrayList<>();
         for (Entity model : models) {
             final String text = model.memo.toLowerCase();
-            if (SoundSearcher.matchString(text, query)){
+            if (SoundSearcher.matchString(text, query)) {
                 filteredModelList.add(model);
             }
         }

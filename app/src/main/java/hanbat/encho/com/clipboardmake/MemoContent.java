@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.Log;
@@ -23,6 +24,7 @@ import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
  * Created by Encho on 2016-09-14.
  */
 public class MemoContent extends DialogFragment {
+    public static DeleteCallback mCallback = null;
 
     public static MemoContent newInstance(Entity content, int memoColor) {
         Bundle args = new Bundle();
@@ -32,6 +34,10 @@ public class MemoContent extends DialogFragment {
         args.putInt("color", memoColor);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    public static void setCallback(DeleteCallback callback) {
+        mCallback = callback;
     }
 
     @Nullable
@@ -51,6 +57,7 @@ public class MemoContent extends DialogFragment {
             }
         });
 
+        /* ----- 삭제 버튼 ----- */
         deleteMemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -59,6 +66,7 @@ public class MemoContent extends DialogFragment {
                 mOpenner.deleteColumn(getArguments().getInt("id"));
                 mOpenner.close();
                 getActivity().getSupportFragmentManager().beginTransaction().remove(MemoContent.this).commit();
+                mCallback.onFragmentDestroy();
             }
         });
 
@@ -85,6 +93,7 @@ public class MemoContent extends DialogFragment {
         return view;
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         final FrameLayout root = new FrameLayout(getActivity());
@@ -97,8 +106,11 @@ public class MemoContent extends DialogFragment {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
-
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         return dialog;
     }
+
+    public interface DeleteCallback {
+        void onFragmentDestroy();
+    }
+
 }
