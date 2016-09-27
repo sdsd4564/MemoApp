@@ -29,12 +29,12 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 
     private Context mContext;
     private ArrayList<Entity> list = null;
-    private ArrayList<Entity> filtered = null;
+    public ArrayList<Entity> filtered = null;
     private DbOpenner mOpenner;
     private boolean result;
     private AlertDialog mDialog = null;
 
-    public SparseBooleanArray checkedItem = new SparseBooleanArray();
+//    public SparseBooleanArray checkedItem = new SparseBooleanArray();
     private int checkMode;
     private int mCheckedPosition = INVAILD_POSITION;
 
@@ -50,6 +50,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         mOpenner = DbOpenner.getInstance(mContext);
     }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
@@ -64,8 +65,11 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
             mCheckedPosition = position;
             notifyDataSetChanged();
         } else if (checkMode == MODE_MULTI) {
-            boolean oldChecked = checkedItem.get(position);
-            checkedItem.put(position, !oldChecked);
+            boolean oldChecked = filtered.get(position).checked;
+//            checkedItem.put(position, !oldChecked);
+            filtered.set(position, new Entity(filtered.get(position)._id, filtered.get(position).memo, !oldChecked));
+//            filtered.get(position).checked = !oldChecked;
+            Log.d(TAG, filtered.get(position).checked+"");
             notifyDataSetChanged();
         }
     }
@@ -79,8 +83,8 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         }
     }
 
-    public SparseBooleanArray getCheckedItemPositions() {
-        return checkedItem;
+    public ArrayList<Entity> getCheckedItemPositions() {
+        return filtered;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,7 +119,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 //            }
 
         } else if (checkMode == MODE_MULTI) {
-            holder.setChecked(checkedItem.get(position));
+            holder.setChecked(filtered.get(position).checked);
         }
 
         switch (filtered.get(position)._id % 4) {
@@ -177,6 +181,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 
     @Override
     public int getItemCount() {
+        if (getItemCount() == 0) {
+
+        }
         return filtered.size();
     }
 

@@ -98,10 +98,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         MemoContent.setCallback(new MemoContent.DeleteCallback() {
             @Override
             public void onFragmentDestroy() {
-                doWhileCursorToArray();
-                adapter = new MyAdapter(MainActivity.this, list, filtered);
-                mRecyclerView.setAdapter(adapter);
+//                doWhileCursorToArray();
+//                adapter = new MyAdapter(MainActivity.this, list, filtered);
+//                mRecyclerView.setAdapter(adapter);
 //                mRecyclerView.invalidate();
+                onResume();
             }
         });
     }
@@ -114,9 +115,19 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
                 item.setIcon(R.drawable.ic_done_white_24dp);
                 adapter.setMode(MyAdapter.MODE_MULTI);
-                adapter.checkedItem = new SparseBooleanArray();
+//                adapter.checkedItem = new ArrayList<>();
             } else if (adapter.getMode() == MyAdapter.MODE_MULTI) {
                 item.setIcon(R.drawable.ic_delete_white_24dp);
+                mOpenner.open();
+                for (int i = 0; i < adapter.getItemCount() - 1; i++) {
+                    if (filtered.get(i).checked) {
+                        mOpenner.deleteColumn(filtered.get(i)._id);
+                        onResume();
+                        for (int j = 0; j < adapter.getItemCount() - 1; i++)
+                            Log.d(TAG, filtered.get(j).checked + "");
+                    }
+                }
+                mOpenner.close();
                 adapter.setMode(MyAdapter.MODE_SINGLE);
             }
             return true;
@@ -182,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mCursor = mOpenner.getAllColumn();
         while (mCursor.moveToNext()) {
             mEntity = new Entity(mCursor.getInt(mCursor.getColumnIndex("_id")),
-                    mCursor.getString(mCursor.getColumnIndex("memo")));
+                    mCursor.getString(mCursor.getColumnIndex("memo")), false);
 
             list.add(mEntity);
         }
