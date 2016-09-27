@@ -11,6 +11,7 @@
         android:id="@+id/item_content_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxLines="7"
         android:padding="12dp"
         android:textColor="#212121" />
 

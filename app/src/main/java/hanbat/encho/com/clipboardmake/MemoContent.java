@@ -1,12 +1,19 @@
 package hanbat.encho.com.clipboardmake;
 
 import android.app.Dialog;
+import android.content.ClipData;
+import android.content.ClipDescription;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.transition.Explode;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +24,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
 
@@ -40,6 +48,7 @@ public class MemoContent extends DialogFragment {
         mCallback = callback;
     }
 
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,7 +56,8 @@ public class MemoContent extends DialogFragment {
         TextView displayText = (TextView) view.findViewById(R.id.content_text);
         LinearLayout memoFrame = (LinearLayout) view.findViewById(R.id.memo_dialog);
         ImageView closeMemo = (ImageView) view.findViewById(R.id.close_memo);
-        final ImageView deleteMemo = (ImageView) view.findViewById(R.id.delete_memo);
+        ImageView deleteMemo = (ImageView) view.findViewById(R.id.delete_memo);
+        ImageView copyMemo = (ImageView) view.findViewById(R.id.copy_memo);
 
         /* ----- 닫기 버튼 ----- */
         closeMemo.setOnClickListener(new View.OnClickListener() {
@@ -67,6 +77,16 @@ public class MemoContent extends DialogFragment {
                 mOpenner.close();
                 getActivity().getSupportFragmentManager().beginTransaction().remove(MemoContent.this).commit();
                 mCallback.onFragmentDestroy();
+            }
+        });
+        /* ----- 복사 버튼 ----- */
+        copyMemo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ClipboardManager manager = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData data = ClipData.newPlainText("memo", getArguments().getString("content"));
+                manager.setPrimaryClip(data);
+                Toast.makeText(getActivity(), "메모가 복사되었습니다", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -104,6 +124,7 @@ public class MemoContent extends DialogFragment {
         dialog.setContentView(root);
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
         return dialog;
@@ -112,5 +133,4 @@ public class MemoContent extends DialogFragment {
     public interface DeleteCallback {
         void onFragmentDestroy();
     }
-
 }

@@ -14,6 +14,7 @@ import hanbat.encho.com.clipboardmake.R;
 public class ViewHolder extends RecyclerView.ViewHolder {
     public TextView mTextView;
     View mView;
+    public View checkedView;
     public interface OnItemClickListener {
         public void onItemClick(View view, int position);
     }
@@ -26,6 +27,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         mView = itemView;
         mTextView = (TextView) itemView.findViewById(R.id.item_content_text);
+        checkedView = itemView.findViewById(R.id.selected);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

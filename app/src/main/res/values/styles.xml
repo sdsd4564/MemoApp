@@ -8,4 +8,13 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="DialogAnimation.Window." parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/enter_from_left</item>
+        <item name="android:windowExitAnimation">@anim/exit_to_left</item>
+    </style>
+
+    <style name="DialogAnimation" parent="@android:style/Theme.Panel">
+        <item name="android:windowAnimationStyle">@style/DialogAnimation.Window.</item>
+    </style>
+
 </resources>

@@ -2,9 +2,11 @@ package hanbat.encho.com.clipboardmake.Adapter;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
@@ -54,9 +56,10 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     public void onItemClick(View view, int position) {
         if (checkMode == MODE_SINGLE) {
             Log.d(TAG, position+"");
-            FragmentTransaction transaction = ((MainActivity) mContext).getSupportFragmentManager().beginTransaction();
-            transaction.add(MemoContent.newInstance(filtered.get(position), filtered.get(position)._id % 4), null);
-            transaction.setCustomAnimations(R.anim.enter_from_left, R.anim.exit_to_left);
+            MainActivity owner = (MainActivity)mContext;
+            MemoContent fragment = MemoContent.newInstance(filtered.get(position), filtered.get(position)._id % 4);
+            FragmentTransaction transaction = owner.getSupportFragmentManager().beginTransaction();
+            transaction.add(fragment, null);
             transaction.commit();
             mCheckedPosition = position;
             notifyDataSetChanged();
@@ -110,6 +113,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 //            } else {
 //                holder.setChecked(false);
 //            }
+
         } else if (checkMode == MODE_MULTI) {
             holder.setChecked(checkedItem.get(position));
         }
