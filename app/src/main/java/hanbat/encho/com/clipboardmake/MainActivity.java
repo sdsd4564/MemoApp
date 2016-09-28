@@ -55,8 +55,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         /* ----- 서비스 선언 -----*/
         intent = new Intent(this, MemoService.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        intent.setPackage("hanbat.encho.com.clipboardmake");
 
         /* ----- DB 오픈 ----- */
         mOpenner = DbOpenner.getInstance(this);
@@ -142,15 +140,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onResume() {
         super.onResume();
-        /* ----- 서비스가 이미 실행중인 경우 STOP ----- */
-
-        stopService(intent);
-
+        // TODO: 2016-09-28  ISSUE
         /* ----- 리사이클러뷰 업데이트 ----- */
         doWhileCursorToArray();
         adapter = new MyAdapter(MainActivity.this, list, filtered);
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(adapter);
-        mRecyclerView.invalidate();
+        adapter.notifyDataSetChanged();
+        Log.i("Leelog", adapter.getItemCount() + "");
+//        mRecyclerView.invalidate();
     }
 
     @Override
@@ -173,6 +171,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             manager.notify(0, mBuilder.build());
 
         }
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        stopService(intent);
         startService(intent); // 클립보드 메모 서비스
 
     }
@@ -180,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopService(intent);
     }
 
     /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
