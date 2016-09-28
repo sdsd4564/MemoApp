@@ -18,7 +18,7 @@ import android.widget.Toast;
  */
 public class MemoService extends Service {
 
-    private ClipboardManager manager = null;
+    //private ClipboardManager manager = null;
     private ClipData data = null;
     private static final String TAG = "메모 서비스";
     private DbOpenner mOpenner;
@@ -31,7 +31,8 @@ public class MemoService extends Service {
         super.onCreate();
         mOpenner = DbOpenner.getInstance(Application.getMyContext());
 
-        manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        Log.d(TAG, "온크리에이트");
+        final ClipboardManager manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
         manager.addPrimaryClipChangedListener(new ClipboardManager.OnPrimaryClipChangedListener() {
             @Override
@@ -45,8 +46,9 @@ public class MemoService extends Service {
                     mOpenner.open();
                     mPrevius = Contents;
                     mOpenner.insertColumn(Contents);
+                    Log.d(TAG, Contents);
                     mOpenner.close();
-                    Toast mToast = Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT);
+                    Toast mToast = Toast.makeText(Application.getMyContext(), R.string.message_when_add, Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.CENTER, 0, 0);
                     mToast.show();
                 }
@@ -63,5 +65,6 @@ public class MemoService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        stopSelf();
     }
 }

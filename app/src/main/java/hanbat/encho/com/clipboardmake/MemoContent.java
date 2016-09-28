@@ -86,7 +86,7 @@ public class MemoContent extends DialogFragment {
                 ClipboardManager manager = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData data = ClipData.newPlainText("memo", getArguments().getString("content"));
                 manager.setPrimaryClip(data);
-                Toast.makeText(getActivity(), "메모가 복사되었습니다", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getActivity(), R.string.message_when_copied, Toast.LENGTH_SHORT).show();
             }
         });
 

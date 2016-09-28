@@ -9,6 +9,7 @@ import android.support.v7.widget.RecyclerView;
 import android.transition.TransitionInflater;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -175,9 +176,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
                 };
 
                 mDialog = new AlertDialog.Builder(mContext)
-                        .setMessage("메모를 삭제하시겠습니까?") //TODO String
-                        .setPositiveButton("취소", cancelListener)
-                        .setNegativeButton("삭제", deleteListener)
+                        .setMessage(R.string.request_delete)
+                        .setPositiveButton(R.string.cancle, cancelListener)
+                        .setNegativeButton(R.string.delete, deleteListener)
                         .create();
                 mDialog.show();
 

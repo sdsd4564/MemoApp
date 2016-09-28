@@ -54,22 +54,18 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         setContentView(R.layout.activity_main);
 
         /* ----- 서비스 선언 -----*/
-        intent = new Intent("hanbat.encho.com.clipboardmake.service");
+        intent = new Intent(this, MemoService.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         intent.setPackage("hanbat.encho.com.clipboardmake");
 
         /* ----- DB 오픈 ----- */
         mOpenner = DbOpenner.getInstance(this);
 
-        /* ----- 서비스가 이미 실행중인 경우 STOP ----- */
-        if (isServiceRunning) {
-            stopService(intent);
-            isServiceRunning = false;
-        }
-
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
+
         mToolbar.inflateMenu(R.menu.search);
 
 //        SearchView mSearchView = (SearchView) mToolbar.getMenu().findItem(R.id.menu_search).getActionView();
@@ -98,10 +94,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         MemoContent.setCallback(new MemoContent.DeleteCallback() {
             @Override
             public void onFragmentDestroy() {
-//                doWhileCursorToArray();
-//                adapter = new MyAdapter(MainActivity.this, list, filtered);
-//                mRecyclerView.setAdapter(adapter);
-//                mRecyclerView.invalidate();
                 onResume();
             }
         });
@@ -110,29 +102,29 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
+        boolean isItemChecked = false;
 
         if (id == R.id.delete_all) {
             if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
                 item.setIcon(R.drawable.ic_done_white_24dp);
                 adapter.setMode(MyAdapter.MODE_MULTI);
-//                adapter.checkedItem = new ArrayList<>();
             } else if (adapter.getMode() == MyAdapter.MODE_MULTI) {
                 item.setIcon(R.drawable.ic_delete_white_24dp);
                 mOpenner.open();
-                for (int i = 0; i < adapter.getItemCount() - 1; i++) {
+                for (int i = 0; i < adapter.getItemCount(); i++) {
                     if (filtered.get(i).checked) {
                         mOpenner.deleteColumn(filtered.get(i)._id);
-                        onResume();
-                        for (int j = 0; j < adapter.getItemCount() - 1; i++)
-                            Log.d(TAG, filtered.get(j).checked + "");
+                        isItemChecked = true;
                     }
                 }
                 mOpenner.close();
+                onResume();
+                if (isItemChecked)
+                    Toast.makeText(this, R.string.message_when_delete, Toast.LENGTH_SHORT).show();
                 adapter.setMode(MyAdapter.MODE_SINGLE);
             }
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -141,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         getMenuInflater().inflate(R.menu.search, menu);
         MenuItem menuItem = menu.findItem(R.id.menu_search);
         SearchView mSearchView = (SearchView) menuItem.getActionView();
-        mSearchView.setQueryHint(Html.fromHtml("<font color = #000000>" + getResources().getString(R.string.hint_search) + "</font>"));
+        mSearchView.setQueryHint(Html.fromHtml("<font color = #ffffff>" + getResources().getString(R.string.hint_search) + "</font>"));
         mSearchView.setOnQueryTextListener(this);
 
         return true;
@@ -150,11 +142,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onResume() {
         super.onResume();
+        /* ----- 서비스가 이미 실행중인 경우 STOP ----- */
+
+        stopService(intent);
+
         /* ----- 리사이클러뷰 업데이트 ----- */
         doWhileCursorToArray();
         adapter = new MyAdapter(MainActivity.this, list, filtered);
         mRecyclerView.setAdapter(adapter);
-//        mRecyclerView.invalidate();
+        mRecyclerView.invalidate();
     }
 
     @Override
@@ -177,12 +173,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             manager.notify(0, mBuilder.build());
 
         }
-        if (!isServiceRunning) {
-            startService(intent); // 클립보드 메모 서비스
-            isServiceRunning = true;
-        }
+        startService(intent); // 클립보드 메모 서비스
+
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(intent);
+    }
 
     /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
     private void doWhileCursorToArray() {
@@ -190,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         list = new ArrayList<>();
         filtered = new ArrayList<>();
         mOpenner.open();
+
         mCursor = mOpenner.getAllColumn();
         while (mCursor.moveToNext()) {
             mEntity = new Entity(mCursor.getInt(mCursor.getColumnIndex("_id")),
