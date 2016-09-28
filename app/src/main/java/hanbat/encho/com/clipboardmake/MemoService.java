@@ -41,7 +41,7 @@ public class MemoService extends Service {
                 String Contents = data.getItemAt(0).coerceToText(Application.getMyContext()).toString();
 
                 if (mPrevius.equals(Contents)) return;
-                else {
+                else if (!Contents.equals("")){
                     mOpenner.open();
                     mPrevius = Contents;
                     mOpenner.insertColumn(Contents);

@@ -11,6 +11,7 @@ import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -34,7 +35,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     private boolean result;
     private AlertDialog mDialog = null;
 
-//    public SparseBooleanArray checkedItem = new SparseBooleanArray();
+    //    public SparseBooleanArray checkedItem = new SparseBooleanArray();
     private int checkMode;
     private int mCheckedPosition = INVAILD_POSITION;
 
@@ -42,12 +43,18 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     public static final int MODE_SINGLE = 0;
     public static final int MODE_MULTI = 1;
 
+    public static final int ITEM_EMPTY = 1001;
+    public static final int ITEM_HAVE = 1002;
+
+    private MainActivity owner = null;
+
 
     public MyAdapter(Context mContext, ArrayList list, ArrayList filtered) {
         this.mContext = mContext;
         this.list = list;
         this.filtered = filtered;
         mOpenner = DbOpenner.getInstance(mContext);
+        owner = (MainActivity) mContext;
     }
 
 
@@ -56,8 +63,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     @Override
     public void onItemClick(View view, int position) {
         if (checkMode == MODE_SINGLE) {
-            Log.d(TAG, position+"");
-            MainActivity owner = (MainActivity)mContext;
+            Log.d(TAG, position + "");
             MemoContent fragment = MemoContent.newInstance(filtered.get(position), filtered.get(position)._id % 4);
             FragmentTransaction transaction = owner.getSupportFragmentManager().beginTransaction();
             transaction.add(fragment, null);
@@ -69,7 +75,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 //            checkedItem.put(position, !oldChecked);
             filtered.set(position, new Entity(filtered.get(position)._id, filtered.get(position).memo, !oldChecked));
 //            filtered.get(position).checked = !oldChecked;
-            Log.d(TAG, filtered.get(position).checked+"");
+            Log.d(TAG, filtered.get(position).checked + "");
             notifyDataSetChanged();
         }
     }
@@ -103,12 +109,14 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         }
     }
 
+
     public int getMode() {
         return checkMode;
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
+
         holder.mTextView.setText(filtered.get(position).memo);
 
         if (checkMode == MODE_SINGLE) {
@@ -181,11 +189,14 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 
     @Override
     public int getItemCount() {
-        if (getItemCount() == 0) {
-
+        if (filtered.isEmpty()) {
+            owner.findViewById(R.id.no_item).setVisibility(View.VISIBLE);
+        } else {
+            owner.findViewById(R.id.no_item).setVisibility(View.INVISIBLE);
         }
         return filtered.size();
     }
+
 
     /* ----- 검색 필터 적용 ----- */
     public void setFilter(ArrayList<Entity> memberModels, String text) {
