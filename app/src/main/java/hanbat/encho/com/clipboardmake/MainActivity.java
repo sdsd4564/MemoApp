@@ -147,7 +147,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-        Log.i("Leelog", adapter.getItemCount() + "");
 //        mRecyclerView.invalidate();
     }
 
