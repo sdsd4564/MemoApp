@@ -1,14 +1,20 @@
 package hanbat.encho.com.clipboardmake;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Toast;
 
 /**
@@ -24,6 +30,7 @@ public class MemoService extends Service {
 
 
     ClipboardManager.OnPrimaryClipChangedListener mListener = null;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -45,13 +52,35 @@ public class MemoService extends Service {
                     mPrevius = Contents;
                     mOpenner.insertColumn(Contents);
                     mOpenner.close();
-                    Toast mToast = Toast.makeText(Application.getMyContext(), "메모에 추가되었습니다", Toast.LENGTH_SHORT);
+                    Toast mToast = new Toast(Application.getMyContext());
+                    mToast.setDuration(Toast.LENGTH_SHORT);
                     mToast.setGravity(Gravity.CENTER, 0, 0);
+                    LayoutInflater mInflater = (LayoutInflater) Application.getMyContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View view = mInflater.inflate(R.layout.toast_view, null);
+                    mToast.setView(view);
                     mToast.show();
                 }
             }
         };
         manager.addPrimaryClipChangedListener(mListener);
+
+        Toast.makeText(Application.getMyContext(), getString(R.string.message_when_pause), Toast.LENGTH_SHORT).show();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            PendingIntent mPendingIntent = PendingIntent.getActivity(Application.getMyContext(),
+                    0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+            Notification.Builder mBuilder = new Notification.Builder(this)
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle(getString(R.string.notification_head))
+                    .setContentText(getString(R.string.notification_body))
+                    .setAutoCancel(false)
+                    .setOngoing(true);
+
+            mBuilder.setContentIntent(mPendingIntent);
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.notify(0, mBuilder.build());
+
+        }
     }
 
     @Nullable

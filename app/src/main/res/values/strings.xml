@@ -1,14 +1,14 @@
 <resources>
-    <string name="app_name">ClipboardMAKE</string>
+    <string name="app_name">은혜갚는 늑대</string>
 
 
     <string name="recent_clipboard">최근 클립보드 내용 : </string>
     <string name="has_no_clipboard">클립보드 내용 없음</string>
 
-    <string name="message_when_pause">메모는 계속 기록됩니다. 정말로요!</string>
+    <string name="message_when_pause">늑대가 은혜를 갚으러 떠났습니다</string>
     <string name="message_when_delete">메모를 삭제했습니다</string>
     <string name="message_when_copied">메모를 클립보드에 복사했습니다</string>
-    <string name="message_when_add">메모가 추가되었습니다</string>
+    <string name="message_when_add">늑대가 무언가를 물고 왔습니다!</string>
 
 
     <string name="request_delete">정말 이 메모를 삭제할까요?</string>

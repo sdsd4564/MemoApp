@@ -9,23 +9,19 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.util.Log;
-import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
 
@@ -35,9 +31,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private DbOpenner mOpenner;
     private Cursor mCursor;
     private Entity mEntity;
-    private ClipboardManager manager = null;
-    private ClipData clipData = null;
-    private ClipData.Item item = null;
 
     private RecyclerView mRecyclerView = null;
 
@@ -46,7 +39,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private ArrayList<Entity> filtered = null;
 
     private Intent intent = null;
-    private boolean isServiceRunning;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,15 +55,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeAsUpIndicator(R.drawable.wolf_128);
+
 
         mToolbar.inflateMenu(R.menu.search);
-
-//        SearchView mSearchView = (SearchView) mToolbar.getMenu().findItem(R.id.menu_search).getActionView();
-//        mSearchView.setOnQueryTextListener(this);
-
-        /* ----- 시스템에서 클립보드 내용 가져옴 ----- */
-        manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        clipData = manager.getPrimaryClip();
 
         list = new ArrayList<>();
         filtered = new ArrayList<>();
@@ -83,11 +71,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(adapter);
 
-        if (clipData != null) { /* 가장 최신의 클립보드 내용을 맨 윗줄에 표시해줌 */
-            item = clipData.getItemAt(0);
-        } else {
-            Toast.makeText(getApplicationContext(), getString(R.string.has_no_clipboard), Toast.LENGTH_SHORT).show();
-        }
 
         MemoContent.setCallback(new MemoContent.DeleteCallback() {
             @Override
@@ -98,16 +81,27 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search, menu);
+        MenuItem menuItem = menu.findItem(R.id.menu_search);
+        SearchView mSearchView = (SearchView) menuItem.getActionView();
+        mSearchView.setQueryHint(Html.fromHtml("<font color = #ffffff>" + getResources().getString(R.string.hint_search) + "</font>"));
+        mSearchView.setOnQueryTextListener(this);
+
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
         boolean isItemChecked = false;
 
         if (id == R.id.delete_all) {
             if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
-                item.setIcon(R.drawable.ic_done_white_24dp);
+                item.setIcon(R.drawable.ic_check_white_36dp);
                 adapter.setMode(MyAdapter.MODE_MULTI);
             } else if (adapter.getMode() == MyAdapter.MODE_MULTI) {
-                item.setIcon(R.drawable.ic_delete_white_24dp);
+                item.setIcon(R.drawable.ic_delete_white_36dp);
                 mOpenner.open();
                 for (int i = 0; i < adapter.getItemCount(); i++) {
                     if (filtered.get(i).checked) {
@@ -127,20 +121,11 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.search, menu);
-        MenuItem menuItem = menu.findItem(R.id.menu_search);
-        SearchView mSearchView = (SearchView) menuItem.getActionView();
-        mSearchView.setQueryHint(Html.fromHtml("<font color = #ffffff>" + getResources().getString(R.string.hint_search) + "</font>"));
-        mSearchView.setOnQueryTextListener(this);
-
-        return true;
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-        // TODO: 2016-09-28  ISSUE
+
+        stopService(intent); // TODO: 2016-09-28  ISSUE
+
         /* ----- 리사이클러뷰 업데이트 ----- */
         doWhileCursorToArray();
         adapter = new MyAdapter(MainActivity.this, list, filtered);
@@ -153,30 +138,13 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onPause() {
         super.onPause();
-        Toast.makeText(Application.getMyContext(), getString(R.string.message_when_pause), Toast.LENGTH_SHORT).show();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            PendingIntent mPendingIntent = PendingIntent.getActivity(Application.getMyContext(),
-                    0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
-            Notification.Builder mBuilder = new Notification.Builder(this)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(getString(R.string.notification_head))
-                    .setContentText(getString(R.string.notification_body))
-                    .setAutoCancel(false)
-                    .setOngoing(true);
-
-            mBuilder.setContentIntent(mPendingIntent);
-            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            manager.notify(0, mBuilder.build());
-
-        }
 
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopService(intent);
         startService(intent); // 클립보드 메모 서비스
 
     }
