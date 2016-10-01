@@ -34,7 +34,6 @@ public class MemoService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "tasdf");
         mOpenner = DbOpenner.getInstance(Application.getMyContext());
 
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);

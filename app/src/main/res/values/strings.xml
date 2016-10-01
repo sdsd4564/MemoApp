@@ -22,4 +22,6 @@
     
     <string name="notification_head">"클립보드 내용을 기록중입니다"</string>
     <string name="notification_body">글자를 복사해보세요!</string>
+
+    <string name="banner_ad_unit_id">ca-app-pub-2392186899206299/4127461561</string>
 </resources>

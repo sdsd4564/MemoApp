@@ -1,14 +1,8 @@
 package hanbat.encho.com.clipboardmake;
 
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
@@ -20,8 +14,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+
 import java.util.ArrayList;
-import java.util.Date;
 
 import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
 
@@ -39,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private ArrayList<Entity> filtered = null;
 
     private Intent intent = null;
+    private AdView mAdView = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +48,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         /* ----- DB 오픈 ----- */
         mOpenner = DbOpenner.getInstance(this);
+
+        /* ----- 광고 배너 ----- */
+        MobileAds.initialize(Application.getMyContext(), "ca-app-pub-2392186899206299~1173995164");
+        mAdView = (AdView) findViewById(R.id.ad_view);
+        AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
+        mAdView.loadAd(adRequest);
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -124,6 +128,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     protected void onResume() {
         super.onResume();
 
+        if (mAdView != null) {
+            mAdView.resume();
+        }
+
         stopService(intent); // TODO: 2016-09-28  ISSUE
 
         /* ----- 리사이클러뷰 업데이트 ----- */
@@ -137,9 +145,10 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     protected void onPause() {
+        if (mAdView != null) {
+            mAdView.pause();
+        }
         super.onPause();
-
-
     }
 
     @Override
@@ -151,6 +160,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     @Override
     protected void onDestroy() {
+        if (mAdView != null) {
+            mAdView.destroy();
+        }
         super.onDestroy();
     }
 
