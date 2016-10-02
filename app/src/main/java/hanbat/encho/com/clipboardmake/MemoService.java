@@ -46,8 +46,6 @@ public class MemoService extends Service {
         manager = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
 
 
-
-
         mListener = new ClipboardManager.OnPrimaryClipChangedListener() {
             @Override
             public void onPrimaryClipChanged() {
@@ -76,21 +74,6 @@ public class MemoService extends Service {
         };
         manager.addPrimaryClipChangedListener(mListener);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            PendingIntent mPendingIntent = PendingIntent.getActivity(Application.getMyContext(),
-                    0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
-            Notification.Builder mBuilder = new Notification.Builder(this)
-                    .setSmallIcon(R.mipmap.ic_launcher)
-                    .setContentTitle(getString(R.string.notification_head))
-                    .setContentText(getString(R.string.notification_body))
-                    .setAutoCancel(false)
-                    .setOngoing(true);
-
-            mBuilder.setContentIntent(mPendingIntent);
-            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            notificationManager.notify(0, mBuilder.build());
-
-        }
     }
 
     @Nullable

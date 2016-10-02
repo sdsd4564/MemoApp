@@ -1,9 +1,13 @@
 package hanbat.encho.com.clipboardmake;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.TransactionTooLargeException;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
@@ -12,13 +16,17 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
+import com.zcw.togglebutton.ToggleButton;
 
 import java.util.ArrayList;
 
@@ -34,6 +42,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     private ArrayList<Entity> filtered = null;
     private Intent intent = null;
     private AdView mAdView = null;
+    private ToggleButton mToggle = null;
+
+    private Notification.Builder mBuilder = null;
+    private NotificationManager notificationManager = null;
+    private static final int NOTIFICATION_ID = 151;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +70,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
         mToolbar.setTitleTextColor(Color.WHITE);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.wolf_128);
 
         mToolbar.inflateMenu(R.menu.search);
 
@@ -72,6 +84,42 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mRecyclerView.setAdapter(adapter);
 
 
+        PendingIntent mPendingIntent = PendingIntent.getActivity(Application.getMyContext(),
+                0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
+        mBuilder = new Notification.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle(getString(R.string.notification_head))
+                .setContentText(getString(R.string.notification_body))
+                .setAutoCancel(false)
+                .setOngoing(true);
+
+        mBuilder.setContentIntent(mPendingIntent);
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        mToggle = (ToggleButton) findViewById(R.id.toggle);
+        if (PropertyManager.getInstance().getNotificationSetting()) {
+            mToggle.setToggleOn(true);
+            notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        }
+        mToggle.setOnClickListener(new View.OnClickListener() {
+            boolean isChecked = PropertyManager.getInstance().getNotificationSetting();
+            @Override
+            public void onClick(View view) {
+                if (!isChecked) {
+                    mToggle.toggleOn();
+                    isChecked = !isChecked;
+                    notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+                    PropertyManager.getInstance().setNotificationSetting(isChecked);
+                } else {
+                    mToggle.toggleOff();
+                    isChecked = !isChecked;
+                    notificationManager.cancel(NOTIFICATION_ID);
+                    PropertyManager.getInstance().setNotificationSetting(isChecked);
+                }
+            }
+        });
+
+
         MemoContent.setCallback(new MemoContent.DeleteCallback() {
             @Override
             public void onFragmentDestroy() {
@@ -80,6 +128,25 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         });
     }
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mAdView != null) {
+            mAdView.resume();
+        }
+
+        stopService(intent); // TODO: 2016-09-28  ISSUE
+
+        /* ----- 리사이클러뷰 업데이트 ----- */
+        doWhileCursorToArray();
+        adapter = new MyAdapter(MainActivity.this, list, filtered);
+        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
+        mRecyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+//        mRecyclerView.invalidate();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -96,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
         boolean isItemChecked = false;
-
 
         switch (id) {
             case R.id.delete_all: {
@@ -120,35 +186,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 }
                 return true;
             }
-            case R.id.setting : {
-                Toast.makeText(this, "설정이 들어갈 수 있는거 맞죠?", Toast.LENGTH_SHORT).show();
-                FragmentTransaction mTransaction = getSupportFragmentManager().beginTransaction();
-                mTransaction.add(Setting.newInstance(), null);
-                mTransaction.commit();
-                return true;
-            }
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (mAdView != null) {
-            mAdView.resume();
-        }
-
-        stopService(intent); // TODO: 2016-09-28  ISSUE
-
-        /* ----- 리사이클러뷰 업데이트 ----- */
-        doWhileCursorToArray();
-        adapter = new MyAdapter(MainActivity.this, list, filtered);
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
-        mRecyclerView.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-//        mRecyclerView.invalidate();
     }
 
     @Override
