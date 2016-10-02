@@ -3,6 +3,7 @@ package hanbat.encho.com.clipboardmake.Adapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Checkable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import hanbat.encho.com.clipboardmake.R;
@@ -13,10 +14,11 @@ import hanbat.encho.com.clipboardmake.R;
 
 public class ViewHolder extends RecyclerView.ViewHolder {
     public TextView mTextView;
+    public ImageView mImageView;
     View mView;
     public View checkedView;
     public interface OnItemClickListener {
-        public void onItemClick(View view, int position);
+        void onItemClick(View view, int position);
     }
     OnItemClickListener mClickListener;
     public void setOnItemClickListener(OnItemClickListener listener){
@@ -27,6 +29,7 @@ public class ViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         mView = itemView;
         mTextView = (TextView) itemView.findViewById(R.id.item_content_text);
+        mImageView = (ImageView) itemView.findViewById(R.id.item_content_image);
         checkedView = itemView.findViewById(R.id.selected);
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override

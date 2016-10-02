@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
@@ -25,16 +27,11 @@ import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private static final String TAG = "메인 액티비티";
-    private DbOpenner mOpenner;
-    private Cursor mCursor;
-    private Entity mEntity;
-
+    private DbOpenner mOpenner = null;
     private RecyclerView mRecyclerView = null;
-
     private MyAdapter adapter = null;
     private ArrayList<Entity> list = null;
     private ArrayList<Entity> filtered = null;
-
     private Intent intent = null;
     private AdView mAdView = null;
 
@@ -62,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.wolf_128);
 
-
         mToolbar.inflateMenu(R.menu.search);
 
         list = new ArrayList<>();
@@ -84,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         });
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search, menu);
@@ -100,27 +97,38 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         final int id = item.getItemId();
         boolean isItemChecked = false;
 
-        if (id == R.id.delete_all) {
-            if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
-                item.setIcon(R.drawable.ic_check_white_36dp);
-                adapter.setMode(MyAdapter.MODE_MULTI);
-            } else if (adapter.getMode() == MyAdapter.MODE_MULTI) {
-                item.setIcon(R.drawable.ic_delete_white_36dp);
-                mOpenner.open();
-                for (int i = 0; i < adapter.getItemCount(); i++) {
-                    if (filtered.get(i).checked) {
-                        mOpenner.deleteColumn(filtered.get(i)._id);
-                        isItemChecked = true;
+
+        switch (id) {
+            case R.id.delete_all: {
+                if (adapter.getMode() == MyAdapter.MODE_SINGLE) {
+                    item.setIcon(R.drawable.ic_check_white_36dp);
+                    adapter.setMode(MyAdapter.MODE_MULTI);
+                } else if (adapter.getMode() == MyAdapter.MODE_MULTI) {
+                    item.setIcon(R.drawable.ic_delete_white_36dp);
+                    mOpenner.open();
+                    for (int i = 0; i < adapter.getItemCount(); i++) {
+                        if (filtered.get(i).checked) {
+                            mOpenner.deleteColumn(filtered.get(i)._id);
+                            isItemChecked = true;
+                        }
                     }
+                    mOpenner.close();
+                    onResume();
+                    if (isItemChecked)
+                        Toast.makeText(this, R.string.message_when_delete, Toast.LENGTH_SHORT).show();
+                    adapter.setMode(MyAdapter.MODE_SINGLE);
                 }
-                mOpenner.close();
-                onResume();
-                if (isItemChecked)
-                    Toast.makeText(this, R.string.message_when_delete, Toast.LENGTH_SHORT).show();
-                adapter.setMode(MyAdapter.MODE_SINGLE);
+                return true;
             }
-            return true;
+            case R.id.setting : {
+                Toast.makeText(this, "설정이 들어갈 수 있는거 맞죠?", Toast.LENGTH_SHORT).show();
+                FragmentTransaction mTransaction = getSupportFragmentManager().beginTransaction();
+                mTransaction.add(Setting.newInstance(), null);
+                mTransaction.commit();
+                return true;
+            }
         }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -156,7 +164,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         super.onStop();
         Toast.makeText(Application.getMyContext(), getString(R.string.message_when_pause), Toast.LENGTH_SHORT).show();
         startService(intent); // 클립보드 메모 서비스
-
     }
 
     @Override
@@ -169,14 +176,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
     private void doWhileCursorToArray() {
-        mCursor = null;
+        Cursor mCursor = null;
         list = new ArrayList<>();
         filtered = new ArrayList<>();
         mOpenner.open();
 
         mCursor = mOpenner.getAllColumn();
         while (mCursor.moveToNext()) {
-            mEntity = new Entity(mCursor.getInt(mCursor.getColumnIndex("_id")),
+            Entity mEntity = new Entity(mCursor.getInt(mCursor.getColumnIndex("_id")),
                     mCursor.getString(mCursor.getColumnIndex("memo")), false);
 
             list.add(mEntity);

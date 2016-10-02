@@ -1,8 +1,5 @@
 <resources>
 
-    <!-- Base application theme. -->
-
-
     <style name="DialogAnimation.Window." parent="@android:style/Animation.Activity">
         <item name="android:windowEnterAnimation">@anim/enter_from_left</item>
         <item name="android:windowExitAnimation">@anim/exit_to_left</item>
@@ -33,5 +30,6 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:homeAsUpIndicator">@drawable/ic_keyboard_arrow_left_white_36dp</item>
     </style>
+
 
 </resources>

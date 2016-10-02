@@ -9,7 +9,15 @@
         app:showAsAction="collapseActionView|ifRoom" />
     <item
         android:id="@+id/delete_all"
-        android:title=""
         android:icon="@drawable/ic_delete_white_36dp"
-        app:showAsAction="always"/>
+        android:title=""
+        app:showAsAction="always" />
+
+    <item
+        android:id="@+id/setting"
+        android:icon="@drawable/ic_settings_white_36dp"
+        android:orderInCategory="100"
+        android:title="@string/setting"
+        app:showAsAction="always" />
+
 </menu>
