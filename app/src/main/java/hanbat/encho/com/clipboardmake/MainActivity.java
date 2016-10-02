@@ -154,6 +154,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     @Override
     protected void onStop() {
         super.onStop();
+        Toast.makeText(Application.getMyContext(), getString(R.string.message_when_pause), Toast.LENGTH_SHORT).show();
         startService(intent); // 클립보드 메모 서비스
 
     }

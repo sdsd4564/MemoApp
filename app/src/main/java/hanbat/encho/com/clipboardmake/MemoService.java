@@ -63,8 +63,6 @@ public class MemoService extends Service {
         };
         manager.addPrimaryClipChangedListener(mListener);
 
-        Toast.makeText(Application.getMyContext(), getString(R.string.message_when_pause), Toast.LENGTH_SHORT).show();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             PendingIntent mPendingIntent = PendingIntent.getActivity(Application.getMyContext(),
                     0, new Intent(this, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
