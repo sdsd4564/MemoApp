@@ -107,18 +107,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             public void onClick(View view) {
                 if (!isChecked) {
                     mToggle.toggleOn();
-                    isChecked = !isChecked;
                     notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-                    PropertyManager.getInstance().setNotificationSetting(isChecked);
                 } else {
                     mToggle.toggleOff();
-                    isChecked = !isChecked;
                     notificationManager.cancel(NOTIFICATION_ID);
-                    PropertyManager.getInstance().setNotificationSetting(isChecked);
                 }
+                isChecked = !isChecked;
+                PropertyManager.getInstance().setNotificationSetting(isChecked);
             }
         });
-
 
         MemoContent.setCallback(new MemoContent.DeleteCallback() {
             @Override
@@ -145,7 +142,6 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL));
         mRecyclerView.setAdapter(adapter);
         adapter.notifyDataSetChanged();
-//        mRecyclerView.invalidate();
     }
 
     @Override

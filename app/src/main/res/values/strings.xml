@@ -2,9 +2,6 @@
     <string name="app_name">은혜갚는 늑대</string>
 
 
-    <string name="recent_clipboard">최근 클립보드 내용 : </string>
-    <string name="has_no_clipboard">클립보드 내용 없음</string>
-
     <string name="message_when_pause">늑대가 은혜를 갚으러 떠났습니다</string>
     <string name="message_when_delete">메모를 삭제했습니다</string>
     <string name="message_when_copied">메모를 클립보드에 복사했습니다</string>
@@ -19,8 +16,7 @@
 
     <string name="cancle">취소</string>
     <string name="delete">삭제</string>
-    <string name="setting">설정</string>
-    
+
     <string name="notification_head">"클립보드 내용을 기록중입니다"</string>
     <string name="notification_body">글자를 복사해보세요!</string>
 

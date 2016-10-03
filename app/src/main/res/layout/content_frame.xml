@@ -24,7 +24,7 @@
                 android:id="@+id/close_memo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/actionBarItemBackground"
                 android:padding="4dp"
                 android:src="@drawable/ic_close_black_24dp" />
 
@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="10dp"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/actionBarItemBackground"
                 android:padding="4dp"
                 android:src="@drawable/ic_content_copy_black_24dp" />
 
@@ -46,7 +46,7 @@
                 android:id="@+id/delete_memo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="?android:attr/selectableItemBackground"
+                android:background="?android:attr/actionBarItemBackground"
                 android:padding="4dp"
                 android:src="@drawable/ic_delete_black_24dp" />
         </LinearLayout>

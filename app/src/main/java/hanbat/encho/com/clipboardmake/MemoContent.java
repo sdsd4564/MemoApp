@@ -2,19 +2,14 @@ package hanbat.encho.com.clipboardmake;
 
 import android.app.Dialog;
 import android.content.ClipData;
-import android.content.ClipDescription;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
-import android.transition.Explode;
-import android.transition.TransitionInflater;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +20,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
 
 /**
  * Created by Encho on 2016-09-14.
@@ -47,7 +40,6 @@ public class MemoContent extends DialogFragment {
     public static void setCallback(DeleteCallback callback) {
         mCallback = callback;
     }
-
 
     @Nullable
     @Override
@@ -83,7 +75,7 @@ public class MemoContent extends DialogFragment {
         copyMemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ClipboardManager manager = (ClipboardManager)getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
                 ClipData data = ClipData.newPlainText("memo", getArguments().getString("content"));
                 manager.setPrimaryClip(data);
                 Toast.makeText(getActivity(), R.string.message_when_copied, Toast.LENGTH_SHORT).show();
