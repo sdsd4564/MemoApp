@@ -50,7 +50,7 @@ public class MemoContent extends DialogFragment {
         ImageView closeMemo = (ImageView) view.findViewById(R.id.close_memo);
         ImageView deleteMemo = (ImageView) view.findViewById(R.id.delete_memo);
         ImageView copyMemo = (ImageView) view.findViewById(R.id.copy_memo);
-        ImageView markMemo = (ImageView) view.findViewById(R.id.mark_memo);
+        final ImageView markMemo = (ImageView) view.findViewById(R.id.mark_memo);
 
         /* ----- 닫기 버튼 ----- */
         closeMemo.setOnClickListener(new View.OnClickListener() {
@@ -62,9 +62,15 @@ public class MemoContent extends DialogFragment {
 
         /* ----- 북마크 버튼 ----- */
         markMemo.setOnClickListener(new View.OnClickListener() {
+            boolean isMarked = false;
             @Override
             public void onClick(View view) {
-                
+                 if (isMarked) {
+                     markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_border_black_24dp));
+                 } else {
+                     markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_black_24dp));
+                 }
+                isMarked = !isMarked;
             }
         });
 

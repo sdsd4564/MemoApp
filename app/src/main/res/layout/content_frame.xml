@@ -39,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:background="?android:attr/actionBarItemBackground"
                 android:padding="4dp"
+                android:layout_marginRight="10dp"
                 android:src="@drawable/ic_star_border_black_24dp" />
 
             <ImageView
