@@ -15,6 +15,8 @@ public class MemoBootStart extends BroadcastReceiver {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             Intent mIntent = new Intent(context, MemoService.class);
             context.startService(mIntent);
+            
+            //TODO
         }
     }
 }
