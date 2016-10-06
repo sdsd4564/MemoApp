@@ -59,7 +59,7 @@ public class MemoService extends Service {
                     else if (!Contents.equals("")) {
                         mOpenner.open();
                         mPrevius = Contents;
-                        mOpenner.insertColumn(Contents);
+                        mOpenner.insertColumn(Contents, 0);
                         mOpenner.close();
                         Toast mToast = new Toast(Application.getMyContext());
                         mToast.setDuration(Toast.LENGTH_LONG);

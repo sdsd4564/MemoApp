@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -26,6 +27,12 @@ import android.widget.Toast;
  */
 public class MemoContent extends DialogFragment {
     public static DeleteCallback mCallback = null;
+    DbOpenner mOpenner = DbOpenner.getInstance(getContext());
+
+    private int id;
+    private String content;
+    private int markedFlag;
+    private boolean marked;
 
     public static MemoContent newInstance(Entity content, int memoColor) {
         Bundle args = new Bundle();
@@ -33,8 +40,20 @@ public class MemoContent extends DialogFragment {
         args.putString("content", content.memo);
         args.putInt("id", content._id);
         args.putInt("color", memoColor);
+        args.putInt("marked", content.marked);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        id = getArguments().getInt("id");
+        content = getArguments().getString("content");
+        markedFlag = getArguments().getInt("marked");
+        if (markedFlag == 1) marked = true;
+        else marked = false;
+        mOpenner.open();
     }
 
     public static void setCallback(DeleteCallback callback) {
@@ -57,20 +76,27 @@ public class MemoContent extends DialogFragment {
             @Override
             public void onClick(View view) {
                 getActivity().getSupportFragmentManager().beginTransaction().remove(MemoContent.this).commit();
+                mCallback.onFragmentDestroy();
             }
         });
 
         /* ----- 북마크 버튼 ----- */
+        if (marked) {
+            markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_yellow_24dp));
+        }
         markMemo.setOnClickListener(new View.OnClickListener() {
-            boolean isMarked = false;
+//            boolean isMarked = false;
             @Override
             public void onClick(View view) {
-                 if (isMarked) {
-                     markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_border_black_24dp));
-                 } else {
-                     markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_black_24dp));
-                 }
-                isMarked = !isMarked;
+                if (marked) {
+                    markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_border_black_24dp));
+                } else {
+                    markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_yellow_24dp));
+                }
+                marked = !marked;
+                if (marked) markedFlag = 1;
+                else markedFlag = 0;
+                mOpenner.updateColumn(id, content, markedFlag);
             }
         });
 
@@ -78,10 +104,7 @@ public class MemoContent extends DialogFragment {
         deleteMemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                DbOpenner mOpenner = DbOpenner.getInstance(getContext());
-                mOpenner.open();
-                mOpenner.deleteColumn(getArguments().getInt("id"));
-                mOpenner.close();
+                mOpenner.deleteColumn(id);
                 getActivity().getSupportFragmentManager().beginTransaction().remove(MemoContent.this).commit();
                 mCallback.onFragmentDestroy();
             }
@@ -91,7 +114,7 @@ public class MemoContent extends DialogFragment {
             @Override
             public void onClick(View view) {
                 ClipboardManager manager = (ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-                ClipData data = ClipData.newPlainText("memo", getArguments().getString("content"));
+                ClipData data = ClipData.newPlainText("memo", content);
                 manager.setPrimaryClip(data);
                 Toast.makeText(getActivity(), R.string.message_when_copied, Toast.LENGTH_SHORT).show();
             }
@@ -116,8 +139,14 @@ public class MemoContent extends DialogFragment {
                 break;
             }
         }
-        displayText.setText(getArguments().getString("content"));
+        displayText.setText(content);
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mOpenner.close();
     }
 
     @NonNull
@@ -134,7 +163,16 @@ public class MemoContent extends DialogFragment {
         dialog.getWindow().setWindowAnimations(R.style.DialogAnimation);
         dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
+        /* ----- 뒤로가기 버튼 눌렀을 때 ----- */
+        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialogInterface) {
+                mCallback.onFragmentDestroy();
+            }
+        });
+
         return dialog;
+
     }
 
     public interface DeleteCallback {

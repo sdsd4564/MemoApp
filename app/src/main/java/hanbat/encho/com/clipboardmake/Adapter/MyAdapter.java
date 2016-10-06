@@ -5,12 +5,14 @@ import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -43,9 +45,6 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     public static final int MODE_SINGLE = 0;
     public static final int MODE_MULTI = 1;
 
-    public static final int ITEM_EMPTY = 1001;
-    public static final int ITEM_HAVE = 1002;
-
     private MainActivity owner = null;
 
 
@@ -72,9 +71,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
             notifyDataSetChanged();
         } else if (checkMode == MODE_MULTI) {
             boolean oldChecked = filtered.get(position).checked;
-//            checkedItem.put(position, !oldChecked);
-            filtered.set(position, new Entity(filtered.get(position)._id, filtered.get(position).memo, !oldChecked));
-//            filtered.get(position).checked = !oldChecked;
+            filtered.set(position, new Entity(filtered.get(position)._id, filtered.get(position).memo, !oldChecked, filtered.get(position).marked));
             Log.d(TAG, filtered.get(position).checked + "");
             notifyDataSetChanged();
         }
@@ -115,9 +112,13 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
 
         holder.mTextView.setText(filtered.get(position).memo);
+
+        if (filtered.get(position).marked == 1) {
+            holder.remarked.setVisibility(View.VISIBLE);
+        }
 
         if (checkMode == MODE_SINGLE) {
 //            if (position == mCheckedPosition) {
@@ -128,14 +129,6 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 
         } else if (checkMode == MODE_MULTI) {
             holder.setChecked(filtered.get(position).checked);
-        }
-        if (filtered.get(position).image != null) {
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(mContext.getContentResolver(), filtered.get(position).image);
-                holder.mImageView.setImageBitmap(bitmap);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
 
         switch (filtered.get(position)._id % 4) {
@@ -193,6 +186,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
             }
         });
     }
+
 
 
     @Override

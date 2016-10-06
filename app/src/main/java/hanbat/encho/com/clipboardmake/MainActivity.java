@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     private Notification.Builder mBuilder = null;
     private NotificationManager notificationManager = null;
-    private static final int NOTIFICATION_ID = 151;
+    public static final int NOTIFICATION_ID = 151;
 
 
     @Override
@@ -208,18 +208,23 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
     /* ----- 데이터베이스 내용을 어레이로 옮김 ----- */
     private void doWhileCursorToArray() {
-        Cursor mCursor = null;
+        Cursor mCursor;
         list = new ArrayList<>();
         filtered = new ArrayList<>();
         mOpenner.open();
 
         mCursor = mOpenner.getAllColumn();
         while (mCursor.moveToNext()) {
-            Entity mEntity = new Entity(mCursor.getInt(mCursor.getColumnIndex("_id")),
-                    mCursor.getString(mCursor.getColumnIndex("memo")), false);
+            Entity mEntity = new Entity(
+                    mCursor.getInt(mCursor.getColumnIndex(MemoDB._ID)),
+                    mCursor.getString(mCursor.getColumnIndex(MemoDB.MEMO)),
+                    false,
+                    mCursor.getInt(mCursor.getColumnIndex(MemoDB.MARKED)));
 
             list.add(mEntity);
         }
+
+
         filtered.addAll(list);
         mCursor.close();
         mOpenner.close();
