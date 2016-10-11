@@ -5,6 +5,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
@@ -69,6 +70,7 @@ public class MemoContent extends DialogFragment {
         ImageView closeMemo = (ImageView) view.findViewById(R.id.close_memo);
         ImageView deleteMemo = (ImageView) view.findViewById(R.id.delete_memo);
         ImageView copyMemo = (ImageView) view.findViewById(R.id.copy_memo);
+        ImageView shareMemo = (ImageView) view.findViewById(R.id.share_memo);
         final ImageView markMemo = (ImageView) view.findViewById(R.id.mark_memo);
 
         /* ----- 닫기 버튼 ----- */
@@ -85,7 +87,7 @@ public class MemoContent extends DialogFragment {
             markMemo.setImageDrawable(getResources().getDrawable(R.drawable.ic_star_yellow_24dp));
         }
         markMemo.setOnClickListener(new View.OnClickListener() {
-//            boolean isMarked = false;
+            //            boolean isMarked = false;
             @Override
             public void onClick(View view) {
                 if (marked) {
@@ -97,6 +99,19 @@ public class MemoContent extends DialogFragment {
                 if (marked) markedFlag = 1;
                 else markedFlag = 0;
                 mOpenner.updateColumn(id, content, markedFlag);
+            }
+        });
+
+        /* ----- 공유 버튼 ----- */
+        shareMemo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent msg = new Intent(Intent.ACTION_SEND);
+                msg.addCategory(Intent.CATEGORY_DEFAULT);
+                msg.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+                msg.putExtra(Intent.EXTRA_TEXT, content);
+                msg.setType("text/plain");
+                startActivity(Intent.createChooser(msg, "메모 공유"));
             }
         });
 

@@ -28,6 +28,7 @@ public class ItemView extends LinearLayout implements Checkable {
         mParams.setMargins(8, 16, 8, 8);
         setLayoutParams(mParams);
         inflate(getContext(), R.layout.rcv_item, this);
+
         checkView = findViewById(R.id.selected);
     }
 

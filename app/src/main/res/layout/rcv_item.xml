@@ -5,7 +5,8 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"
     android:gravity="center_vertical"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:transitionName="@string/transition">
 
     <TextView
         android:id="@+id/item_content_text"

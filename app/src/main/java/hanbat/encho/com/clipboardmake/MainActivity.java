@@ -119,6 +119,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 onResume();
             }
         });
+        MyAdapter.setCallback(new MyAdapter.BookmarkedCallback() {
+            @Override
+            public void onDialogDestroied() {
+                onResume();
+            }
+        });
     }
 
 

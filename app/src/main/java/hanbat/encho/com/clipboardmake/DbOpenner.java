@@ -51,7 +51,7 @@ public class DbOpenner {
                         db.execSQL("ALTER TABLE " + MemoDB._TABLENAME + " ADD COLUMN " + MemoDB.MARKED + " INTEGER DEFAULT 0");
                         db.setTransactionSuccessful();
                     } catch (IllegalStateException e) {
-                        Log.e("디비오프너", e+"");
+                        Log.e("디비오프너", e.toString());
                     } finally {
                         db.endTransaction();
                     }

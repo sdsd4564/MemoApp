@@ -9,6 +9,7 @@
     tools:context="hanbat.encho.com.clipboardmake.MainActivity">
 
     <LinearLayout
+        android:id="@+id/replace"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
@@ -17,13 +18,11 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:background="@color/mainColor"
             android:minHeight="?android:attr/actionBarSize"
             android:theme="@style/MyActionBar"
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
-            <!--android:paddingBottom="6dp"
-            android:paddingLeft="12dp"
-            android:paddingTop="6dp"-->
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -52,7 +51,7 @@
                 <com.zcw.togglebutton.ToggleButton
                     android:id="@+id/toggle"
                     android:layout_width="45dp"
-                    android:layout_height="30dp"
+                    android:layout_height="24dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="10dp"

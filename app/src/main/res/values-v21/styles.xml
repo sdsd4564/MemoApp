@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+        <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+                <!-- Customize your theme here. -->
+                <item name="colorPrimary">@color/colorPrimary</item>
+                <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+                <item name="colorAccent">@color/colorAccent</item>
+                <item name="android:itemBackground">#efefef</item>
+                <item name="android:windowContentTransitions">true</item>
+                <item name="actionOverflowMenuStyle">@style/menuStyle</item>
+                <item name="android:homeAsUpIndicator">@drawable/ic_keyboard_arrow_left_white_36dp
+                </item>
+        </style>
+</resources>

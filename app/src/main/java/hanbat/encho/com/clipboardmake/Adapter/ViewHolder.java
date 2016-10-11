@@ -1,10 +1,12 @@
 package hanbat.encho.com.clipboardmake.Adapter;
 
+import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Checkable;
 import android.widget.TextView;
 
+import hanbat.encho.com.clipboardmake.Application;
 import hanbat.encho.com.clipboardmake.R;
 
 /**

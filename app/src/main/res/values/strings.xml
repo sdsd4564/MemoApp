@@ -16,9 +16,15 @@
 
     <string name="cancle">취소</string>
     <string name="delete">삭제</string>
+    <string name="shared">공유</string>
+    <string name="copy">복사</string>
+    <string name="bookmark">즐겨찾기</string>
 
     <string name="notification_head">"클립보드 내용을 기록중입니다"</string>
     <string name="notification_body">글자를 복사해보세요!</string>
 
     <string name="banner_ad_unit_id">ca-app-pub-2392186899206299/4127461561</string>
+
+    <string name="transition">transition</string>
+
 </resources>

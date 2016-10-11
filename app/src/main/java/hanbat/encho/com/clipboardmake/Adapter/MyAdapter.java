@@ -1,21 +1,18 @@
 package hanbat.encho.com.clipboardmake.Adapter;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
-import android.provider.MediaStore;
+import android.content.Intent;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import hanbat.encho.com.clipboardmake.DbOpenner;
@@ -37,15 +34,14 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     private boolean result;
     private AlertDialog mDialog = null;
 
-    //    public SparseBooleanArray checkedItem = new SparseBooleanArray();
     private int checkMode;
     private int mCheckedPosition = INVAILD_POSITION;
+    private MainActivity owner = null;
 
     public static final int INVAILD_POSITION = -1;
     public static final int MODE_SINGLE = 0;
     public static final int MODE_MULTI = 1;
-
-    private MainActivity owner = null;
+    public static BookmarkedCallback mCallback = null;
 
 
     public MyAdapter(Context mContext, ArrayList list, ArrayList filtered) {
@@ -56,8 +52,10 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         owner = (MainActivity) mContext;
     }
 
+    public static void setCallback(BookmarkedCallback callback) {
+        mCallback = callback;
+    }
 
-////////////////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public void onItemClick(View view, int position) {
@@ -156,29 +154,57 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
                 DialogInterface.OnClickListener deleteListener = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        mOpenner.open();
-                        result = mOpenner.deleteColumn(list.get(position)._id);
-                        mOpenner.close();
-                        if (result) {
-                            list.remove(filtered.get(position));
-                            filtered.remove(position);
-                            notifyDataSetChanged();
-                        } else {
-                            Toast.makeText(mContext, "Check your list index", Toast.LENGTH_SHORT).show();
+
+                        switch (i) {
+                            case 0: { // 삭제
+                                mOpenner.open();
+                                result = mOpenner.deleteColumn(list.get(position)._id);
+                                mOpenner.close();
+                                if (result) {
+                                    list.remove(filtered.get(position));
+                                    filtered.remove(position);
+                                    notifyDataSetChanged();
+                                    Toast.makeText(mContext, mContext.getString(R.string.message_when_delete), Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(mContext, "Check your list index", Toast.LENGTH_SHORT).show();
+                                }
+                                break;
+                            }
+                            case 1: { // 복사
+                                ClipboardManager manager = (ClipboardManager) mContext.getSystemService(Context.CLIPBOARD_SERVICE);
+                                ClipData data = ClipData.newPlainText("memo", filtered.get(position).memo);
+                                manager.setPrimaryClip(data);
+                                Toast.makeText(mContext, R.string.message_when_copied, Toast.LENGTH_SHORT).show();
+                                break;
+                            }
+                            case 2: {
+                                Intent msg = new Intent(Intent.ACTION_SEND);
+                                msg.addCategory(Intent.CATEGORY_DEFAULT);
+                                msg.putExtra(Intent.EXTRA_SUBJECT, mContext.getString(R.string.app_name));
+                                msg.putExtra(Intent.EXTRA_TITLE, mContext.getString(R.string.app_name));
+                                msg.putExtra(Intent.EXTRA_TEXT, filtered.get(position).memo);
+                                msg.setType("text/plain");
+                                mContext.startActivity(Intent.createChooser(msg, "메모 공유"));
+                                break;
+                            }
+                            case 3: { // 즐겨찾기
+                                int boolToInteger = filtered.get(position).marked;
+                                if (boolToInteger == 0) boolToInteger = 1;
+                                else boolToInteger = 0;
+                                mOpenner.open();
+                                mOpenner.updateColumn(filtered.get(position)._id, filtered.get(position).memo, boolToInteger);
+                                mOpenner.close();
+                                mCallback.onDialogDestroied();
+                                break;
+                            }
                         }
                     }
                 };
-                DialogInterface.OnClickListener cancelListener = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        mDialog.dismiss();
-                    }
-                };
+
+                final CharSequence[] items = {mContext.getString(R.string.delete), mContext.getString(R.string.copy), mContext.getString(R.string.shared), mContext.getString(R.string.bookmark)};
 
                 mDialog = new AlertDialog.Builder(mContext)
-                        .setMessage(R.string.request_delete)
-                        .setPositiveButton(R.string.cancle, cancelListener)
-                        .setNegativeButton(R.string.delete, deleteListener)
+                        .setItems(items, deleteListener)
                         .create();
                 mDialog.show();
 
@@ -186,7 +212,6 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
             }
         });
     }
-
 
 
     @Override
@@ -214,5 +239,8 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         notifyDataSetChanged();
     }
 
+    public interface BookmarkedCallback {
+        void onDialogDestroied();
+    }
 
 }
