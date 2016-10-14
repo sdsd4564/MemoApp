@@ -15,7 +15,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import hanbat.encho.com.clipboardmake.DbOpenner;
+import hanbat.encho.com.clipboardmake.DbOpener;
 import hanbat.encho.com.clipboardmake.Entity;
 import hanbat.encho.com.clipboardmake.MainActivity;
 import hanbat.encho.com.clipboardmake.MemoContent;
@@ -30,7 +30,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
     private Context mContext;
     private ArrayList<Entity> list = null;
     public ArrayList<Entity> filtered = null;
-    private DbOpenner mOpenner;
+    private DbOpener mOpener;
     private boolean result;
     private AlertDialog mDialog = null;
 
@@ -48,7 +48,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
         this.mContext = mContext;
         this.list = list;
         this.filtered = filtered;
-        mOpenner = DbOpenner.getInstance(mContext);
+        mOpener = DbOpener.getInstance(mContext);
         owner = (MainActivity) mContext;
     }
 
@@ -157,9 +157,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 
                         switch (i) {
                             case 0: { // 삭제
-                                mOpenner.open();
-                                result = mOpenner.deleteColumn(list.get(position)._id);
-                                mOpenner.close();
+                                mOpener.open();
+                                result = mOpener.deleteColumn(list.get(position)._id);
+                                mOpener.close();
                                 if (result) {
                                     list.remove(filtered.get(position));
                                     filtered.remove(position);
@@ -191,9 +191,9 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
                                 int boolToInteger = filtered.get(position).marked;
                                 if (boolToInteger == 0) boolToInteger = 1;
                                 else boolToInteger = 0;
-                                mOpenner.open();
-                                mOpenner.updateColumn(filtered.get(position)._id, filtered.get(position).memo, boolToInteger);
-                                mOpenner.close();
+                                mOpener.open();
+                                mOpener.updateColumn(filtered.get(position)._id, filtered.get(position).memo, boolToInteger);
+                                mOpener.close();
                                 mCallback.onDialogDestroied();
                                 break;
                             }
@@ -205,6 +205,7 @@ public class MyAdapter extends RecyclerView.Adapter<ViewHolder> implements ViewH
 
                 mDialog = new AlertDialog.Builder(mContext)
                         .setItems(items, deleteListener)
+                        .setIcon(R.drawable.ic_delete_black_24dp)
                         .create();
                 mDialog.show();
 

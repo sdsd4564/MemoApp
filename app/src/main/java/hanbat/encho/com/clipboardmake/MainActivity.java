@@ -30,7 +30,7 @@ import hanbat.encho.com.clipboardmake.Adapter.MyAdapter;
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private static final String TAG = "메인 액티비티";
-    private DbOpenner mOpenner = null;
+    private DbOpener mOpener = null;
     private RecyclerView mRecyclerView = null;
     private MyAdapter adapter = null;
     private ArrayList<Entity> list = null;
@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         intent = new Intent(this, MemoService.class);
 
         /* ----- DB 오픈 ----- */
-        mOpenner = DbOpenner.getInstance(this);
+        mOpener = DbOpener.getInstance(this);
 
         /* ----- 광고 배너 ----- */
         MobileAds.initialize(Application.getMyContext(), "ca-app-pub-2392186899206299~1173995164");
@@ -169,14 +169,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                     adapter.setMode(MyAdapter.MODE_MULTI);
                 } else if (adapter.getMode() == MyAdapter.MODE_MULTI) {
                     item.setIcon(R.drawable.ic_delete_white_36dp);
-                    mOpenner.open();
+                    mOpener.open();
                     for (int i = 0; i < adapter.getItemCount(); i++) {
                         if (filtered.get(i).checked) {
-                            mOpenner.deleteColumn(filtered.get(i)._id);
+                            mOpener.deleteColumn(filtered.get(i)._id);
                             isItemChecked = true;
                         }
                     }
-                    mOpenner.close();
+                    mOpener.close();
                     onResume();
                     if (isItemChecked)
                         Toast.makeText(this, R.string.message_when_delete, Toast.LENGTH_SHORT).show();
@@ -217,9 +217,9 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         Cursor mCursor;
         list = new ArrayList<>();
         filtered = new ArrayList<>();
-        mOpenner.open();
+        mOpener.open();
 
-        mCursor = mOpenner.getAllColumn();
+        mCursor = mOpener.getAllColumn();
         while (mCursor.moveToNext()) {
             Entity mEntity = new Entity(
                     mCursor.getInt(mCursor.getColumnIndex(MemoDB._ID)),
@@ -233,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
 
         filtered.addAll(list);
         mCursor.close();
-        mOpenner.close();
+        mOpener.close();
     }
 
     @Override

@@ -3,7 +3,6 @@ package hanbat.encho.com.clipboardmake;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.DatabaseErrorHandler;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -12,19 +11,19 @@ import android.util.Log;
 /**
  * Created by USER on 2016-09-10.
  */
-public class DbOpenner {
+public class DbOpener {
     private static final String DATABASE_NAME = "database.db";
     private static final int DATABASE_VERSION = 2;
     public static SQLiteDatabase mDB;
     private DB_Helper mHelper;
     private Context mContext;
 
-    private static DbOpenner f = null;
+    private static DbOpener f = null;
 
-    public static DbOpenner getInstance(Context context) {
+    public static DbOpener getInstance(Context context) {
         /* ----- Use Singleton ----- */
         if (f == null) {
-            f = new DbOpenner(context);
+            f = new DbOpener(context);
         }
         return f;
     }
@@ -63,11 +62,11 @@ public class DbOpenner {
         }
     }
 
-    public DbOpenner(Context mContext) {
+    public DbOpener(Context mContext) {
         this.mContext = mContext;
     }
 
-    public DbOpenner open() throws SQLException {
+    public DbOpener open() throws SQLException {
         mHelper = new DB_Helper(mContext, DATABASE_NAME, null, DATABASE_VERSION);
         mDB = mHelper.getWritableDatabase();
         return this;

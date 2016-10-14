@@ -28,7 +28,7 @@ import android.widget.Toast;
  */
 public class MemoContent extends DialogFragment {
     public static DeleteCallback mCallback = null;
-    DbOpenner mOpenner = DbOpenner.getInstance(getContext());
+    DbOpener mOpener = DbOpener.getInstance(getContext());
 
     private int id;
     private String content;
@@ -54,7 +54,7 @@ public class MemoContent extends DialogFragment {
         markedFlag = getArguments().getInt("marked");
         if (markedFlag == 1) marked = true;
         else marked = false;
-        mOpenner.open();
+        mOpener.open();
     }
 
     public static void setCallback(DeleteCallback callback) {
@@ -98,7 +98,7 @@ public class MemoContent extends DialogFragment {
                 marked = !marked;
                 if (marked) markedFlag = 1;
                 else markedFlag = 0;
-                mOpenner.updateColumn(id, content, markedFlag);
+                mOpener.updateColumn(id, content, markedFlag);
             }
         });
 
@@ -119,7 +119,7 @@ public class MemoContent extends DialogFragment {
         deleteMemo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOpenner.deleteColumn(id);
+                mOpener.deleteColumn(id);
                 getActivity().getSupportFragmentManager().beginTransaction().remove(MemoContent.this).commit();
                 mCallback.onFragmentDestroy();
             }
@@ -161,7 +161,7 @@ public class MemoContent extends DialogFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mOpenner.close();
+        mOpener.close();
     }
 
     @NonNull
