@@ -8,10 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 
 
-/**
- * Created by USER on 2016-09-29.
- */
-
 public class MemoBootStart extends BroadcastReceiver {
 
     @Override
@@ -19,9 +15,10 @@ public class MemoBootStart extends BroadcastReceiver {
         if (intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED)) {
             Intent mIntent = new Intent(context, MemoService.class);
             context.startService(mIntent);
+
             PendingIntent mPendingIntent = PendingIntent.getActivity(context,
                     0, new Intent(context, MainActivity.class), PendingIntent.FLAG_CANCEL_CURRENT);
-            Notification.Builder mBuilder = new Notification.Builder(Application.getMyContext())
+            Notification.Builder mBuilder = new Notification.Builder(context)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentTitle(context.getString(R.string.notification_head))
                     .setContentText(context.getString(R.string.notification_body))
@@ -30,8 +27,9 @@ public class MemoBootStart extends BroadcastReceiver {
 
             mBuilder.setContentIntent(mPendingIntent);
             NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.notify(MainActivity.NOTIFICATION_ID, mBuilder.build());
-
+            if (PropertyManager.getInstance().getNotificationSetting()) {
+                notificationManager.notify(MainActivity.NOTIFICATION_ID, mBuilder.build());
+            }
         }
     }
 }
