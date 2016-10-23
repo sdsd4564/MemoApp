@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         mAdView = (AdView) findViewById(R.id.ad_view);
         AdRequest adRequest = new AdRequest.Builder().addTestDevice(AdRequest.DEVICE_ID_EMULATOR).build();
         mAdView.loadAd(adRequest);
+        //////////////////////////
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recycler_clipdata); // 리사이클러뷰
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -92,10 +93,14 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         mToggle = (ToggleButton) findViewById(R.id.toggle);
+
+        /* ----- 알림 켜져있으면 토글 상태 ON ------ */
         if (PropertyManager.getInstance().getNotificationSetting()) {
             mToggle.setToggleOn(true);
             notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
         }
+
+        /* ----- 토글 ON & OFF ----- */
         mToggle.setOnClickListener(new View.OnClickListener() {
             boolean isChecked = PropertyManager.getInstance().getNotificationSetting();
 
@@ -104,14 +109,17 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                 if (!isChecked) {
                     mToggle.toggleOn();
                     notificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+                    Toast.makeText(MainActivity.this, "상태바 알람을 켰습니다", Toast.LENGTH_SHORT).show();
                 } else {
                     mToggle.toggleOff();
                     notificationManager.cancel(NOTIFICATION_ID);
+                    Toast.makeText(MainActivity.this, "상태바 알람을 껐습니다", Toast.LENGTH_SHORT).show();
                 }
                 isChecked = !isChecked;
                 PropertyManager.getInstance().setNotificationSetting(isChecked);
             }
         });
+        ////////////////////////////
 
         MemoContent.setCallback(new MemoContent.DeleteCallback() {
             @Override
@@ -123,6 +131,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
             @Override
             public void onDialogDestroied() {
                 onResume();
+                Toast.makeText(MainActivity.this, getString(R.string.message_when_bookmarked), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -23,9 +23,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-/**
- * Created by Encho on 2016-09-14.
- */
+
 public class MemoContent extends DialogFragment {
     public static DeleteCallback mCallback = null;
     DbOpener mOpener = DbOpener.getInstance(getContext());
@@ -120,10 +118,12 @@ public class MemoContent extends DialogFragment {
             @Override
             public void onClick(View view) {
                 mOpener.deleteColumn(id);
+                Toast.makeText(getActivity(), getString(R.string.message_when_delete), Toast.LENGTH_SHORT).show();
                 getActivity().getSupportFragmentManager().beginTransaction().remove(MemoContent.this).commit();
                 mCallback.onFragmentDestroy();
             }
         });
+
         /* ----- 복사 버튼 ----- */
         copyMemo.setOnClickListener(new View.OnClickListener() {
             @Override
